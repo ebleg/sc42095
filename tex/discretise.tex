@@ -1,0 +1,52 @@
+\subsection{Discretisation of the plant \textnormal{\phantom{xxx}(Question 3)}}
+The transfer function of the plant (\cref{eq:plant}), has the state-space realization in the following canonical form:
+\begin{equation}
+    \begin{aligned}
+        \dv{x}{t} &= \mqty(0 & 1 & 0 \\ 0 & 0 & 1 \\ 0 & -144 & -24)x + \mqty(0 \\ 1 \\ -4)u\\
+        y &= \mqty(1 & 0 & 0)x
+    \end{aligned}
+\end{equation}
+It is known that the output of the system represents the orientation of the space station. From the state space description, it is therefore clear that the first state must also be equal to this orientation. Then, from the first state-space equation it is clear that $\dv{x_1}{t} = x_2$; which means that $x_2$ represents the angular velocity associated with the orientation of the spacecraft. Again, $\dv{x_2}{t} = x_3 + u$. Clearly, $u$ acts as a torque on the change in angular velocity; $x_3$ must therefore represent the angular acceleration. The third equation states that $\dv{x_3}{t} = -144x_2 - 24x_3 -4u$. It is not entirely evident what this equation represents, but it introduces some coupling between the angular velocity and the angular acceleration of the system. Therefore, one might guess that this equation represent some gyroscopic effect that is present in the rotational dynamics of the system --- a common way to adjust the attitude of spacecraft is by means of so-called Control Moment Gyroscopes.
+
+\paragraph{Discretisation of the plant}
+To find a discrete-time state-space representation of the plant a suitable sampling period $h$ has to be chosen. \textcite[300]{astrom} provides the rule for open-loop systems that
+$$ \omega_ch \approx 0.15 \text{ to } 0.5$$
+where $\omega_c$ is the crossover frequency of the open loop system. Based on this rule, a sampling period of $h = \SI{1.08}{\second}$ was chosen; which is rather low, but so it the closed-loop uncompensated step response of the plant. Using the zero-order hold method, the resulting discrete-time state-space model is:
+\begin{equation}
+    \begin{gathered}
+        x(k+1) = \Phi x(k) + \Gamma u(k) \qquad y(k) = Cx(k) + Du(k)\\
+        \Phi = 
+        \begin{pmatrix}   
+            1        &           0       &            0\\
+            0.166663739616237  &  0.000032777038157 &  -0.000365153653910\\
+            0.006944216826124 & 0.000002535789263  & -0.000028081904161 \\
+        \end{pmatrix}\\
+        \Gamma = \begin{pmatrix}
+               1.080177590517217 \\
+                0.159196525309621 \\
+                 0.006343846186812\\ 
+        \end{pmatrix}\quad C = \mqty(0 & 1 & -4) \quad D = 0
+    \end{gathered}
+\end{equation}
+
+\subsection{Discretisation of the controllers \textnormal{\phantom{xxx}(Question 4)}}
+Now, both the controllers from \cref{sec:continuoustracking,sec:continuousdisturbance} and the plant are discretised separately, after which a closed loop response simulation is performed. Again, another rule of thumb is used from \textcite[317]{astrom} for PID-type controllers:
+$$ \frac{hN}{T_d} \approx 0.2 \text{ to } 0.6$$
+Of course, the controller designs were of type PIDD so some care had to be taken when using this method.
+
+\paragraph{Tracking controller}
+The tracking controller was discretised using the Tustin approximation while the plant was discretised using the zero-order hold method (both with identical sampling period). The sampling period was computed using the aforementioned rule with the largest of the two $T_d$'s. The resulting sampling time was increased slightly more to obtain also a reasonable number of samples per rise time. The sampling time used was $h = \SI{0.0014}{\second}$. The resulting simulation is shown in \cref{fig:q4_dt_tracking}; the discretised controller shows comparable performance with slightly higher overshoot and settling time.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[]{media/q4/dt_tracking.eps}
+    \caption{}
+    \label{fig:q4_dt_tracking}
+\end{figure}
+
+\paragraph{Disturbance rejection controller}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[]{media/q4/dt_distrej.eps}
+    \caption{}
+    \label{fig:q4_dt_distrej}
+\end{figure}
