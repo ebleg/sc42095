@@ -1,3 +1,11 @@
 *.asv
 *.eps
 *.pdf
+*.aux
+*.bcf
+*.blg
+*.dvi
+*.fls
+*.log
+*.run.xml
+*synctex.gz
