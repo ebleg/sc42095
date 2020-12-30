@@ -55,7 +55,7 @@ Gc = tf([1 20], [1 24 144 0]);
 
 % Visualize poles and zeros
 % figure('Name', 'Q1: Plant pole-zero map')
-% specialpzmap(Gc)
+% specialpzmap(Gc, 'ShowGoodies', 'on')
 % exportgraphics(gcf, '../tex/media/q1/cont_plant_pzmap.eps')
 % 
 % figure('Name', 'Q1: Plant Bode plot')
@@ -333,74 +333,97 @@ clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 % h4_distrej = stepinfo(feedback(Gc, K2.it5.tf)).PeakTime/20;
 % h4_distrej = 1.1/wc;
 % h4_distrej = 0.6/max(abs(pole(K2.it5.tf*Gc)));
-h4_tracking = K1.it6.Td2*0.7/10;
-h4_distrej = K2.it5.Td1*0.2/10;
-
-figure('Name', 'Q4: DT Reference tracking controller', 'NumberTitle', 'on')
-K_tracking = c2d(K1.it6.tf, h4_tracking, 'tustin');
-Gd_tracking = c2d(Gc, h4_tracking, 'zoh');
-[~, tin] = specialstep(feedback(K_tracking*Gd_tracking, 1), ...
-                                            'ShowGoodies', 'off'); hold on;
-specialstep(feedback(K1.it6.tf*Gc, 1), linspace(0, max(tin)));
-legend('Discretised', 'Continuous', 'Location', 'southeast')
-title('\textbf{Reference-tracking controllers}')
-exportgraphics(gcf, '../tex/media/q4/dt_tracking.eps');
-
-figure('Name', 'Q4: DT Disturbance rejection controller', 'NumberTitle', 'on')
-K_distrej = c2d(K2.it5.tf, h4_distrej, 'tustin');
-Gd_distrej = c2d(Gc, h4_distrej, 'zoh');
-[~, tin] = specialstep(feedback(Gd_distrej, K_distrej)); hold on;
-
-K_distrej2 = c2d(K2.it5.tf, 20*h4_distrej, 'tustin');
-Gd_distrej2 = c2d(Gc, 20*h4_distrej, 'tustin');
-specialstep(feedback(Gd_distrej2, K_distrej2), ...
-                1:20*h4_distrej:max(tin)); hold on;
-
-specialstep(feedback(Gc, K2.it5.tf), linspace(0, max(tin)));
-
-ax2 = copyobj(gca, gcf);
-set(ax2, 'Position', [0.5, 0.25, 0.4, 0.4]);
-xlabel(ax2, '');
-set(ax2, 'XLim', [6e-3 18e-3]);
-set(ax2, 'YLim', [2e-5 3.4e-5]);
-set(ax2, 'XTickLabel', {});
-set(ax2, 'YTickLabel', {});
-
-title('\textbf{Disturbance-rejection controllers}')
-legend('Discretised (ZOH)', 'Discretised (Tustin)', 'Continuous')
-exportgraphics(gcf, '../tex/media/q4/dt_distrej.eps');
+% h4_tracking = K1.it6.Td2*0.7/10;
+% h4_distrej = K2.it5.Td1*0.2/10;
+% 
+% figure('Name', 'Q4: DT Reference tracking controller', 'NumberTitle', 'on')
+% K_tracking = c2d(K1.it6.tf, h4_tracking, 'tustin');
+% Gd_tracking = c2d(Gc, h4_tracking, 'zoh');
+% [~, tin] = specialstep(feedback(K_tracking*Gd_tracking, 1), ...
+%                                             'ShowGoodies', 'off'); hold on;
+% specialstep(feedback(K1.it6.tf*Gc, 1), linspace(0, max(tin)));
+% legend('Discretised', 'Continuous', 'Location', 'southeast')
+% title('\textbf{Reference-tracking controllers}')
+% exportgraphics(gcf, '../tex/media/q4/dt_tracking.eps');
+% 
+% figure('Name', 'Q4: DT Disturbance rejection controller', 'NumberTitle', 'on')
+% K_distrej = c2d(K2.it5.tf, h4_distrej, 'tustin');
+% Gd_distrej = c2d(Gc, h4_distrej, 'zoh');
+% [~, tin] = specialstep(feedback(Gd_distrej, K_distrej)); hold on;
+% 
+% K_distrej2 = c2d(K2.it5.tf, 15*h4_distrej, 'tustin');
+% Gd_distrej2 = c2d(Gc, 15*h4_distrej, 'tustin');
+% specialstep(feedback(Gd_distrej2, K_distrej2), ...
+%                 1:15*h4_distrej:max(tin)); hold on;
+% 
+% specialstep(feedback(Gc, K2.it5.tf), linspace(0, max(tin)));
+% 
+% ax2 = copyobj(gca, gcf);
+% set(ax2, 'Position', [0.5, 0.25, 0.4, 0.4]);
+% xlabel(ax2, '');
+% set(ax2, 'XLim', [6e-3 18e-3]);
+% set(ax2, 'YLim', [2e-5 3.4e-5]);
+% set(ax2, 'XTickLabel', {});
+% set(ax2, 'YTickLabel', {});
+% 
+% title('\textbf{Disturbance-rejection controllers}')
+% legend('Discretised (ZOH)', 'Discretised (Tustin)', 'Continuous')
+% exportgraphics(gcf, '../tex/media/q4/dt_distrej.eps');
+% 
+% figure
+% hold on;
+% specialbode(feedback(Gd_distrej, K_distrej));
+% specialbode(feedback(Gd_distrej2, K_distrej2));
+% specialbode(feedback(Gc, K2.it5.tf));
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
 %% Question 5: Discrete controller with pole-placement
-h5 = 0.1;
-Gdss = canon(c2d(Gcss, h5, 'zoh'), 'canonical');
+OS_max = 1;
+zeta_target = -log(OS_max/100)/sqrt(pi^2 + log(OS_max/100)^2);
+w = 20;
+target_pole = complex(-zeta_target*w, sqrt(1 - zeta_target)*w);
+
 poles_cont = [-10, -1+4j, -1-4j; % Complex pole pair
-              -10, -4+1j, -4-1j; % Complex pole pair
-              -8, -12.01, -12]; % Pure damping
+              -10, -4+2j, -4-2j; % Complex pole pair
+              target_pole, conj(target_pole), -1.3*w]; % Pure damping
+h5 = 0.02;
 poles_disc = exp(poles_cont*h5);
-poles_disc = [poles_disc; [0 0.01 0.02]]; % Deadbeat
+poles_disc = [poles_disc; [0.001 0.0015 0.002]]; % Deadbeat
 
+Gdss = canon(c2d(Gcss, h5, 'zoh'), 'canonical');
+ 
 figure('Name', 'Q5: Controller design with pole-placement', 'NumberTitle', 'on')
-hold on; 
+nfig_q5_step = get(gcf, 'Number'); hold on;
+figure('Name', 'Q5: Controller design with pole-placement (Pzmap)', 'NumberTitle', 'on')
+nfig_q5_pzmap = get(gcf, 'Number'); hold on; 
 
-tin = 0:h5:5;
+tin = 0:h5:2;
 lgdtxt = {};
 
 for i = 1:length(poles_disc)
     L = place(Gdss.A, Gdss.B, poles_disc(i,:));
     Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
     Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h5);
+    figure(nfig_q5_step);
     specialstep(Hcl, tin);
+    figure(nfig_q5_pzmap);
+    specialpzmap(Hcl);
     lgdtxt{end+1} = strrep(sprintf('%+7s  %+7s  %+7s', ...
                                    num2str(poles_disc(i,1), '%.2g'), ...
                                    num2str(poles_disc(i,2), '%.2g'), ...
                                    num2str(poles_disc(i,3), '%.2g')), ...
                            'i', 'j'); % Display with 'j' as imag unit
 end
-title('\textbf{Comparison between various pole locations}');
-ylabel('Amplitude');
-legend(lgdtxt, 'Location', 'southeast');
+% figure(nfig_q5_step);
+% title('\textbf{Comparison between various pole locations}');
+% ylabel('Amplitude');
+% legend(lgdtxt, 'Location', 'southeast');
+% exportgraphics(gcf, '../tex/media/q5/dt_step.eps');
+% 
+% figure(nfig_q5_pzmap);
+% rectangle('Position', 2*[-0.5 -0.5 1 1], 'Curvature', 1);
+% exportgraphics(gcf, '../tex/media/q5/dt_pzmap.eps');
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
@@ -444,7 +467,7 @@ figure('Name', 'Q6: Ouput-feedback reference tracking', 'NumberTitle', 'on')
 tile = tiledlayout(2, 1);
 nexttile
 stairs(tin, y); hold on;
-specialstep(Hcl_full, tin); xlabel('')
+specialstep(Hcl_full, tin); xlabel('');
 ylabel('Amplitude')
 
 nexttile; hold on;
