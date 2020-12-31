@@ -132,7 +132,7 @@ function [mag, phase, wout, tile] = specialbode(sys, varargin)
     end
 
     if phase_visible
-        tile.Title.FontSize = 13;
+        tile.Title.FontSize = 11.5;
         tile.XLabel.FontSize = 11; tile.YLabel.FontSize = 11; 
         tile.XLabel.Interpreter = 'latex';
         tile.YLabel.Interpreter = 'latex';

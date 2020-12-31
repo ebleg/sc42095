@@ -43,11 +43,13 @@ The tracking controller was discretised using the Tustin approximation while the
     \label{fig:q4_dt_tracking}
 \end{figure}
 
-\paragraph{Disturbance rejection controller}
-Like the tracking controller, sampling period was based on the largest of the two $T_d$'s of the PIDD controller. This resulted in a sampling time of $h = \SI{3.4021e-04}{\second}$. However, the time constant of a step response is several orders of magnitude larger; so a larger sampling period may also be suitable to capture the same response. The meager stability margins of this controller did not allow to discretise the plant with zero-order hold for this larger sampling period due to excessive warping of the phase curve. Hence, the Tustin approximation was used for both the plant and the controller with a sampling time 25 times larger then the one used for the zero-order hold method. \Cref{fig:q4_dt_distrej} shows a comparison between the three methods: the continuous plant and controller, the plant discretised with ZOH and the controller with Tustin using the small $h$, and both discretised with Tustin using a larger sampling period. From the global perspective the first two responses are virtually indistinguishable (note the close-up view), so the Tustin approxmation definitely allows for a more reasonable sampling time while still capturing the system dynamics.
 \begin{figure}[ht]
     \centering
     \includegraphics[]{media/q4/dt_distrej.eps}
     \caption{}
     \label{fig:q4_dt_distrej}
 \end{figure}
+\paragraph{Disturbance rejection controller}
+Like the tracking controller, sampling period was based on the largest of the two $T_d$'s of the PIDD controller. This resulted in a sampling time of $h = \SI{3.4021e-04}{\second}$. However, the time constant of a step response is several orders of magnitude larger; so a larger sampling period may also be suitable to capture the same response. The meager stability margins of this controller did not allow to discretise the plant with zero-order hold for this larger sampling period due to excessive warping of the phase curve. Hence, the Tustin approximation was used for both the plant and the controller with a sampling time 25 times larger then the one used for the zero-order hold method. 
+
+\Cref{fig:q4_dt_distrej} shows a comparison between the three methods: the continuous plant and controller, the plant discretised with ZOH and the controller with Tustin using the small $h$, and both discretised with Tustin using a larger sampling period. From the global perspective the first two responses are virtually indistinguishable (note the close-up view), so the Tustin approxmation definitely allows for a more reasonable sampling time while still capturing the system dynamics.

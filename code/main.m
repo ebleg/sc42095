@@ -28,8 +28,8 @@ set(groot, 'defaultLegendFontSize', 10);
 set(groot, 'defaultAxesFontSize', 10);
 set(groot, 'defaultLineLineWidth', 1.5);
 set(groot, 'defaultStairLineWidth', 1.5)
-set(groot, 'defaultAxesLabelFontSizeMultiplier', 1.2);
-set(groot, 'defaultAxesTitleFontSizeMultiplier', 1.3);
+set(groot, 'defaultAxesLabelFontSizeMultiplier', 1.1);
+set(groot, 'defaultAxesTitleFontSizeMultiplier', 1.15);
 set(groot, 'defaultAxesTitleFontWeight', 'bold');
 set(groot, 'defaultAxesBox', 'on');
 set(groot, 'defaultAxesTickDir', 'both');
@@ -43,7 +43,7 @@ set(groot, 'defaultFigureInvertHardcopy', 'off');
 set(groot, 'defaultFigureColor', [1 1 1]);
 
 % Position & size
-set(groot, 'defaultFigurePosition', [10 10 14 10]);
+set(groot, 'defaultFigurePosition', [10 10 12 8]);
 set(groot, 'defaultAxesPosition', [0.1, 0.13, 0.85, 0.77]);
 
 set(groot, 'defaultTiledLayoutTileSpacing', 'compact')
@@ -125,49 +125,49 @@ K1.it6.Kp = 6.6*K1.it5.Kp;
 K1.it6.tf = K1.it6.Kp*(1 + K1.it6.Td1*s/(s*K1.it6.Td1/N + 1))...
                      *(1 + K1.it6.Td2*s/(s*K1.it6.Td2/N + 1));  
 
-% figure('Name', 'Q1: Step response', 'NumberTitle', 'on'); hold on;
-% nfig_q1_steps = gcf().Number;
-% figure('Name', 'Q1: Bode plots', 'NumberTitle', 'on'); hold on;
-% nfig_q1_bode = gcf().Number;
+figure('Name', 'Q1: Step response', 'NumberTitle', 'on'); hold on;
+nfig_q1_steps = gcf().Number;
+figure('Name', 'Q1: Bode plots', 'NumberTitle', 'on'); hold on;
+nfig_q1_bode = gcf().Number;
 
 % Set x-ranges for all plots
 tin = linspace(0, 2, 3e2);
 win = logspace(-1, 3, 3e2);
 
-% for i = 1:6
-%     tmp = K1.(sprintf('it%d', i)); 
-%     T = feedback(tmp.tf*Gc, 1);
-%     
-%     if i ~= 1
-%         figure(nfig_q1_steps);
-%         specialstep(T, tin);
-% 
-%         figure(nfig_q1_bode);
-%         [~, ~, tile] = specialbode(tmp.tf*Gc, win);
-%     end
-%     
-%     info = stepinfo(T, 'SettlingTimeThreshold', 0.01);
-%     [~, PM] = margin(tmp.tf*Gc);
-%     
-%     % Generate LaTeX table
-%         % i Kp Td1 Td2 OS Ts  
-%     fprintf('%d & %5.4g & %8.3g & %8.3g & %5.3g & %5.2g & %5.3g\\\\ \n', ...
-%             i, tmp.Kp, tmp.Td1, tmp.Td2, PM,  info.Overshoot, info.SettlingTime);  
-% end
-% 
-% lgdtxt = {'\#2 P', '\#3 D-action', '\#4 D-action + target PM', ...
-%           '\#5 PD optimised', '\#6 PDD'};
-% 
-% % Export graphics
-% figure(nfig_q1_steps);
-% legend(lgdtxt, 'Location', 'southeast');
-% exportgraphics(gcf, '../tex/media/q1/pd_controllers_step.eps');
-% 
-% figure(nfig_q1_bode);
-% lgd = legend(lgdtxt, 'Orientation', 'Horizontal', 'NumColumns', 3);
-% lgd.Layout.Tile = 'north';
-% set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 1.3])
-% exportgraphics(gcf, '../tex/media/q1/pd_controllers_bode.eps')
+for i = 1:6
+    tmp = K1.(sprintf('it%d', i)); 
+    T = feedback(tmp.tf*Gc, 1);
+    
+    if i ~= 1
+        figure(nfig_q1_steps);
+        specialstep(T, tin);
+
+        figure(nfig_q1_bode);
+        [~, ~, tile] = specialbode(tmp.tf*Gc, win);
+    end
+    
+    info = stepinfo(T, 'SettlingTimeThreshold', 0.01);
+    [~, PM] = margin(tmp.tf*Gc);
+    
+    % Generate LaTeX table
+        % i Kp Td1 Td2 OS Ts  
+    fprintf('%d & %5.4g & %8.3g & %8.3g & %5.3g & %5.2g & %5.3g\\\\ \n', ...
+            i, tmp.Kp, tmp.Td1, tmp.Td2, PM,  info.Overshoot, info.SettlingTime);  
+end
+
+lgdtxt = {'\#2 P', '\#3 D-action', '\#4 D-action + target PM', ...
+          '\#5 PD optimised', '\#6 PDD'};
+
+% Export graphics
+figure(nfig_q1_steps);
+legend(lgdtxt, 'Location', 'southeast');
+exportgraphics(gcf, '../tex/media/q1/pd_controllers_step.eps');
+
+figure(nfig_q1_bode);
+lgd = legend(lgdtxt, 'Orientation', 'Horizontal', 'NumColumns', 3);
+lgd.Layout.Tile = 'north';
+set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 1.3])
+exportgraphics(gcf, '../tex/media/q1/pd_controllers_bode.eps')
 
 fprintf('Final controller:\n');
 zpk(K1.it6.tf)
@@ -216,8 +216,8 @@ K2.it5.tf = K2.it5.Kp*(1 + 1/s/K2.it5.Ti)...
                  
 % figure(1); hold on; % Pzmap
 
-% figure('Name', 'Q2: Step response', 'NumberTitle', 'on'); hold on; % Step
-% nfig_q2_steps = gcf().Number;
+figure('Name', 'Q2: Step response', 'NumberTitle', 'on'); hold on; % Step
+nfig_q2_steps = gcf().Number;
 
 tin = linspace(0, 4, 8e2);
 win = logspace(-2, 3, 3e2);
@@ -230,8 +230,8 @@ for i = 1:3
    Gd = feedback(Gc, K);
    S = feedback(1, K*Gc);
    
-%    figure(nfig_q2_steps);
-%    specialstep(Gd, tin, 'ShowGoodies', 'off');
+   figure(nfig_q2_steps);
+   specialstep(Gd, tin, 'ShowGoodies', 'off');
    
    info = stepinfo(Gd, 'SettlingTimeThreshold', 0.01);
 
@@ -243,49 +243,52 @@ for i = 1:3
          info.Peak);
 end
 
-% figure(nfig_q2_steps);
-% ylabel('Amplitude');
-% title('\textbf{Disturbance step}')
-% subtitle('Comparison between different values for the PM');
-% set(gca, 'Position', get(gca, 'Position').*[1.2 1 1 0.95]);
-% legend(lgdtxt);
-% exportgraphics(gcf, '../tex/media/q2/pi_pm_comparison.eps');
-% 
-% figure; hold on; % Bode
-% nfig_q2_bode = gcf().Number;
+figure(nfig_q2_steps);
+ylabel('Amplitude');
+title('\textbf{Disturbance step}')
+subtitle('Comparison between different values for the PM');
+set(gca, 'Position', get(gca, 'Position').*[1.2 1 1 0.9]);
+legend(lgdtxt);
+exportgraphics(gcf, '../tex/media/q2/pi_pm_comparison.eps');
+
+figure; hold on; % Bode
+nfig_q2_steps2 = gcf().Number;
+
+figure; hold on; % Bode
+nfig_q2_bode = gcf().Number;
 
 for i = [2 4 5]
    K = K2.(sprintf('it%d', i)).tf; 
    Gd = feedback(Gc, K);
    S = feedback(1, K*Gc);
    
-%    figure(nfig_q2_steps2);
-%    specialstep(Gd, tin, 'ShowGoodies', 'off');
+   figure(nfig_q2_steps2);
+   specialstep(Gd, tin, 'ShowGoodies', 'off');
    
    info = stepinfo(Gd, 'SettlingTimeThreshold', 0.01);
 
-%    lgdtxt{end+1} = sprintf('PM = %.2g deg $\\quad T_s$ = %.3gs', ...
-%                             allmargin(K*Gc).PhaseMargin, ...
-%                             info.SettlingTime);
-%    figure(nfig_q2_bode);
-%    [~, ~, ~, tile] = specialbode(K*Gc, win, 'ShowGoodies', 'off');
-%    
+   lgdtxt{end+1} = sprintf('PM = %.2g deg $\\quad T_s$ = %.3gs', ...
+                            allmargin(K*Gc).PhaseMargin, ...
+                            info.SettlingTime);
+   figure(nfig_q2_bode);
+   [~, ~, ~, tile] = specialbode(K*Gc, win, 'ShowGoodies', 'off');
+   
    fprintf('Iteration %d: Ts = %6.4g M = %6.4g\n', i, info.SettlingTime, ...
          info.Peak);
 end
 
-% lgd = legend({'PI', 'PID', 'PIDD'}, 'Orientation', 'horizontal');
-% lgd.Layout.Tile = 'north';
-% exportgraphics(gcf, '../tex/media/q2/pi_bode_comparison.eps');
+lgd = legend({'PI', 'PID', 'PIDD'}, 'Orientation', 'horizontal');
+lgd.Layout.Tile = 'north';
+exportgraphics(gcf, '../tex/media/q2/pi_bode_comparison.eps');
 
-% figure
-% specialstep(feedback(Gc, K2.it5.tf), 'ShowGoodies', 'off');
-% set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 0.6]);
-% set(gca, 'Position', get(gca, 'Position').*[1 1.15 1 0.8]);
-% title('\textbf{Disturbance step}');
-% subtitle('PIDD controller');
-% ylabel('Amplitude')
-% exportgraphics(gcf, '../tex/media/q2/pidd_response.eps');
+figure
+specialstep(feedback(Gc, K2.it5.tf), 'ShowGoodies', 'off');
+set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 0.6]);
+set(gca, 'Position', get(gca, 'Position').*[1 1.3 1 0.75]);
+title('\textbf{Disturbance step}');
+subtitle('PIDD controller');
+ylabel('Amplitude')
+exportgraphics(gcf, '../tex/media/q2/pidd_response.eps');
 
 fprintf('Final controller:\n');
 zpk(K2.it5.tf)
@@ -328,53 +331,53 @@ format short
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
 %% Question 4: Discretize the controllers
-% h4_tracking = stepinfo(feedback(K1.it6.tf*Gc, 1)).RiseTime/8;
-% [~, ~, ~, wc] = margin(Gc*K2.it5.tf); % Get crossover frequency
-% h4_distrej = stepinfo(feedback(Gc, K2.it5.tf)).PeakTime/20;
-% h4_distrej = 1.1/wc;
-% h4_distrej = 0.6/max(abs(pole(K2.it5.tf*Gc)));
-% h4_tracking = K1.it6.Td2*0.7/10;
-% h4_distrej = K2.it5.Td1*0.2/10;
-% 
-% figure('Name', 'Q4: DT Reference tracking controller', 'NumberTitle', 'on')
-% K_tracking = c2d(K1.it6.tf, h4_tracking, 'tustin');
-% Gd_tracking = c2d(Gc, h4_tracking, 'zoh');
-% [~, tin] = specialstep(feedback(K_tracking*Gd_tracking, 1), ...
-%                                             'ShowGoodies', 'off'); hold on;
-% specialstep(feedback(K1.it6.tf*Gc, 1), linspace(0, max(tin)));
-% legend('Discretised', 'Continuous', 'Location', 'southeast')
-% title('\textbf{Reference-tracking controllers}')
-% exportgraphics(gcf, '../tex/media/q4/dt_tracking.eps');
-% 
-% figure('Name', 'Q4: DT Disturbance rejection controller', 'NumberTitle', 'on')
-% K_distrej = c2d(K2.it5.tf, h4_distrej, 'tustin');
-% Gd_distrej = c2d(Gc, h4_distrej, 'zoh');
-% [~, tin] = specialstep(feedback(Gd_distrej, K_distrej)); hold on;
-% 
-% K_distrej2 = c2d(K2.it5.tf, 15*h4_distrej, 'tustin');
-% Gd_distrej2 = c2d(Gc, 15*h4_distrej, 'tustin');
-% specialstep(feedback(Gd_distrej2, K_distrej2), ...
-%                 1:15*h4_distrej:max(tin)); hold on;
-% 
-% specialstep(feedback(Gc, K2.it5.tf), linspace(0, max(tin)));
-% 
-% ax2 = copyobj(gca, gcf);
-% set(ax2, 'Position', [0.5, 0.25, 0.4, 0.4]);
-% xlabel(ax2, '');
-% set(ax2, 'XLim', [6e-3 18e-3]);
-% set(ax2, 'YLim', [2e-5 3.4e-5]);
-% set(ax2, 'XTickLabel', {});
-% set(ax2, 'YTickLabel', {});
-% 
-% title('\textbf{Disturbance-rejection controllers}')
-% legend('Discretised (ZOH)', 'Discretised (Tustin)', 'Continuous')
-% exportgraphics(gcf, '../tex/media/q4/dt_distrej.eps');
-% 
-% figure
-% hold on;
-% specialbode(feedback(Gd_distrej, K_distrej));
-% specialbode(feedback(Gd_distrej2, K_distrej2));
-% specialbode(feedback(Gc, K2.it5.tf));
+h4_tracking = stepinfo(feedback(K1.it6.tf*Gc, 1)).RiseTime/8;
+[~, ~, ~, wc] = margin(Gc*K2.it5.tf); % Get crossover frequency
+h4_distrej = stepinfo(feedback(Gc, K2.it5.tf)).PeakTime/20;
+h4_distrej = 1.1/wc;
+h4_distrej = 0.6/max(abs(pole(K2.it5.tf*Gc)));
+h4_tracking = K1.it6.Td2*0.7/10;
+h4_distrej = K2.it5.Td1*0.2/10;
+
+figure('Name', 'Q4: DT Reference tracking controller', 'NumberTitle', 'on')
+K_tracking = c2d(K1.it6.tf, h4_tracking, 'tustin');
+Gd_tracking = c2d(Gc, h4_tracking, 'zoh');
+[~, tin] = specialstep(feedback(K_tracking*Gd_tracking, 1), ...
+                                            'ShowGoodies', 'off'); hold on;
+specialstep(feedback(K1.it6.tf*Gc, 1), linspace(0, max(tin)));
+legend('Discretised', 'Continuous', 'Location', 'southeast')
+title('\textbf{Reference-tracking controllers}')
+exportgraphics(gcf, '../tex/media/q4/dt_tracking.eps');
+
+figure('Name', 'Q4: DT Disturbance rejection controller', 'NumberTitle', 'on')
+K_distrej = c2d(K2.it5.tf, h4_distrej, 'tustin');
+Gd_distrej = c2d(Gc, h4_distrej, 'zoh');
+[~, tin] = specialstep(feedback(Gd_distrej, K_distrej)); hold on;
+
+K_distrej2 = c2d(K2.it5.tf, 15*h4_distrej, 'tustin');
+Gd_distrej2 = c2d(Gc, 15*h4_distrej, 'tustin');
+specialstep(feedback(Gd_distrej2, K_distrej2), ...
+                1:15*h4_distrej:max(tin)); hold on;
+
+specialstep(feedback(Gc, K2.it5.tf), linspace(0, max(tin)));
+
+ax2 = copyobj(gca, gcf);
+set(ax2, 'Position', [0.5, 0.25, 0.4, 0.4]);
+xlabel(ax2, '');
+set(ax2, 'XLim', [6e-3 18e-3]);
+set(ax2, 'YLim', [2e-5 3.4e-5]);
+set(ax2, 'XTickLabel', {});
+set(ax2, 'YTickLabel', {});
+
+title('\textbf{Disturbance-rejection controllers}')
+legend('Discretised (ZOH)', 'Discretised (Tustin)', 'Continuous')
+exportgraphics(gcf, '../tex/media/q4/dt_distrej.eps');
+
+figure
+hold on;
+specialbode(feedback(Gd_distrej, K_distrej));
+specialbode(feedback(Gd_distrej2, K_distrej2));
+specialbode(feedback(Gc, K2.it5.tf));
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
@@ -393,37 +396,37 @@ poles_disc = [poles_disc; [0.001 0.0015 0.002]]; % Deadbeat
 
 Gdss = canon(c2d(Gcss, h5, 'zoh'), 'canonical');
 %  
-% figure('Name', 'Q5: Controller design with pole-placement', 'NumberTitle', 'on')
-% nfig_q5_step = get(gcf, 'Number'); hold on;
-% figure('Name', 'Q5: Controller design with pole-placement (Pzmap)', 'NumberTitle', 'on')
-% nfig_q5_pzmap = get(gcf, 'Number'); hold on; 
+figure('Name', 'Q5: Controller design with pole-placement', 'NumberTitle', 'on')
+nfig_q5_step = get(gcf, 'Number'); hold on;
+figure('Name', 'Q5: Controller design with pole-placement (Pzmap)', 'NumberTitle', 'on')
+nfig_q5_pzmap = get(gcf, 'Number'); hold on; 
 
 tin = 0:h5:1.5;
 lgdtxt = {};
 
-% for i = 1:length(poles_disc)
-%     L = place(Gdss.A, Gdss.B, poles_disc(i,:));
-%     Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
-%     Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h5);
-%     figure(nfig_q5_step);
-%     specialstep(Hcl, tin);
-%     figure(nfig_q5_pzmap);
-%     specialpzmap(Hcl);
-%     lgdtxt{end+1} = strrep(sprintf('%+7s  %+7s  %+7s', ...
-%                                    num2str(poles_disc(i,1), '%.2g'), ...
-%                                    num2str(poles_disc(i,2), '%.2g'), ...
-%                                    num2str(poles_disc(i,3), '%.2g')), ...
-%                            'i', 'j'); % Display with 'j' as imag unit
-% end
-% figure(nfig_q5_step);
-% title('\textbf{Comparison between various pole locations}');
-% ylabel('Amplitude');
-% legend(lgdtxt, 'Location', 'southeast');
-% exportgraphics(gcf, '../tex/media/q5/dt_step.eps');
-% 
-% figure(nfig_q5_pzmap);
-% rectangle('Position', 2*[-0.5 -0.5 1 1], 'Curvature', 1);
-% exportgraphics(gcf, '../tex/media/q5/dt_pzmap.eps');
+for i = 1:length(poles_disc)
+    L = place(Gdss.A, Gdss.B, poles_disc(i,:));
+    Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
+    Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h5);
+    figure(nfig_q5_step);
+    specialstep(Hcl, tin);
+    figure(nfig_q5_pzmap);
+    specialpzmap(Hcl);
+    lgdtxt{end+1} = strrep(sprintf('%+7s  %+7s  %+7s', ...
+                                   num2str(poles_disc(i,1), '%.2g'), ...
+                                   num2str(poles_disc(i,2), '%.2g'), ...
+                                   num2str(poles_disc(i,3), '%.2g')), ...
+                           'i', 'j'); % Display with 'j' as imag unit
+end
+figure(nfig_q5_step);
+title('\textbf{Comparison between various pole locations}');
+ylabel('Amplitude');
+legend(lgdtxt, 'Location', 'southeast');
+exportgraphics(gcf, '../tex/media/q5/dt_step.eps');
+
+figure(nfig_q5_pzmap);
+rectangle('Position', 2*[-0.5 -0.5 1 1], 'Curvature', 1);
+exportgraphics(gcf, '../tex/media/q5/dt_pzmap.eps');
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss target_pole w h5
 
@@ -470,22 +473,23 @@ nexttile
 stairs(tin, y); hold on;
 specialstep(Hcl_full, tin); xlabel('');
 ylabel('Amplitude')
-legend({'Output feedback', 'Full-information feedback'})
+legend({'Output feedback', 'Full-information feedback'}, ...
+        'Location', 'southeast');
 nexttile; hold on;
 stairs(tin, x(:, 4:6) - x(:, 1:3));
 ylabel('State error');
-xlabel(tile, 'Time (s)', 'interpreter', 'latex');
+xlabel(tile, 'Time (s)', 'interpreter', 'latex', 'FontSize', 11);
 
 title(tile, '\textbf{Output feedback - Reference tracking}', ...
-        'Interpreter', 'latex');
+        'Interpreter', 'latex', 'FontSize', 11.5);
 
 exportgraphics(gcf, '../tex/media/q6/output_servo.eps');
 
-clearvars -except K1 K2 Gc s PIDDstruct N Gcss Gdss h6
+clearvars -except K1 K2 Gc s PIDDstruct N Gcss Gdss h6 poles_fb
 
 % ------------------------- DISTURBANCE ----------------------------
 
-poles_fb = [-8 -12.01 -12];
+% poles_fb = [-8 -12.01 -12];
 L = place(Gdss.A, Gdss.B, exp(h6*poles_fb));
 % K = place(Gdss.A', Gdss.C', exp(h6*poles_fb*2))';
 
@@ -509,20 +513,55 @@ K_obs = ss([[Gdss.A; [0 0 0]] - K*Gdss.C, [Gdss.B; 1]], ... % A
 Hcl = lft(Gdss_ext, K_obs);
 
 figure('Name', 'Q6: Ouput-feedback reference tracking', 'NumberTitle', 'on')
-tin = 0:h6:6;
-u = tin > 1;
-y = lsim(Hcl, u, tin, [0 0 0 0 0 0 0]);
+tin = 0:h6:0.8;
+u = ones(size(tin));
+
+tile = tiledlayout(2, 1);
+nexttile
+[y, ~, x] = lsim(Hcl, u, tin, [0 0 0 1 3 5 -1]);
 stairs(tin, y);
 ylabel('Amplitude')
 
-clearvars -except K1 K2 Gc s PIDDstruct N Gcss
+nexttile
+stairs(tin, x(:, 7));
+ylabel('Disturbance estimate')
+
+title(tile, '\textbf{Output feedback - disturbance rejection}', ...
+        'interpreter', 'latex', 'FontSize', 11.5);
+
+xlabel(tile, 'Time (s)', 'interpreter', 'latex', 'FontSize', 11);
+exportgraphics(gcf, '../tex/media/q6/output_distrej.eps');
+
+clearvars -except K1 K2 Gc s PIDDstruct N Gcss h6
 
 %% Question 7: LQR controllers
-h7 = 0.1;
+h7 = h6;
 Gdss = canon(c2d(Gcss, h7, 'zoh'), 'canonical');
 
-R = 1;
-Q = eye(3);
+Rrange = [1 10];
+Q0 = Gdss.C'*Gdss.C;
+Qrange = [10 1000 5e4];
+
+figure; hold on;
+tin = 0:h7:3;
+
+lgdtxt = {};
+
+for i = 1:numel(Rrange)
+    for k = 1:numel(Qrange)
+        L = dlqr(Gdss.A, Gdss.B, Qrange(k)*Q0, Rrange(i));
+        Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
+        Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h7);
+        specialstep(Hcl, tin);
+        lgdtxt{end+1} = sprintf('$Q$ = %.3g$\\times Q_0$\n$R$ = %d', ...
+                                Qrange(k), Rrange(i));
+    end
+end
+title('\textbf{LQR weighting matrices comparison}');
+legend(lgdtxt, 'Location', 'eastoutside');
+ylabel('Amplitude')
+exportgraphics(gcf, '../tex/media/q7/lqr_comp.eps');
+
 
 %% Functions
 function Td = place_lead(w, N)

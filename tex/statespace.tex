@@ -56,36 +56,75 @@ Now, it will no longer be assumed that all the states are known, but that the co
     \caption{}
     \label{fig:q6_block_servo}
 \end{figure}
-From \cref{fig:q6_block_servo}, it is straightforward to find the corresponding state-space models. The plant model is:
+From \cref{fig:q6_block_servo}, it is straightforward to find the corresponding state-space models.
 \begin{equation}
+    \text{\textsc{Plant}}\qquad
     \begin{aligned}
         x(k+1) &= \Phi x(k) + \mqty(0&\Gamma)\mqty(r(k)\\u(k))\\
         \mqty(y(k)\\u(k)\\y(k)\\r(k)) &= \mqty(C\\0\\C\\0)x(k) + \mqty(0&0\\0&1\\0&0\\1&0) \mqty(r(k)\\u(k))
     \end{aligned}
 \end{equation}
-Likewise, the controller model is:
+\phantom{x}
 \begin{equation}
+    \text{\textsc{Controller}}\qquad
     \begin{aligned}
-        \hat{x}(k+1) = (\Phi - KC)\hat{x}(k) + \mqty(\Gamma&K&0)\mqty(u(k)\\y(k)\\r(k))\\
-        u(k) = -L\hat{x}(k) + \mqty(0&0&L_c)\mqty(u(k)\\y(k)\\r(k))
+        \hat{x}(k+1) =& (\Phi - KC)\hat{x}(k) + \mqty(\Gamma&K&0)\mqty(u(k)\\y(k)\\r(k))\\
+        u(k) =& -L\hat{x}(k) + \mqty(0&0&L_c)\mqty(u(k)\\y(k)\\r(k))
     \end{aligned}
 \end{equation}
 The same pole locations were chosen as those designed in \cref{sec:ss_full} to obtain the state feedback gain $L$. It is common practice to place the observer poles faster than the controller, such that the state estimation error will decay faster to zero. The rationale behind this is perspicuous: it does not make sense to apply a state feedback law based on a state estimation that is way off. Therefore, the observer poles were chosen to be a factor 1.3 times the state feedback poles (in the $s$-plane). Translated to the $z$-plane, this resulted in:
 $$0.6473 \pm 0.1370j \quad  0.5220$$
-Again, the feedforward gain $L_c$ was used to eliminate the steady-state error; its computation will be discussed in \cref{sec:q12}. The resulting closed-loop system was simulated with a step reference input and the state estimates initialised at $\hat{x}_0 = \mqty(-20 & 30 & 50)$. The result is shown in \cref{fig:q6_output_servo}; both the output and the state estimation error are displayed. The state error decays to zero faster then the output attains it final value due to the faster observer poles. Also, there is only a marginal difference between the output feedback controller and the full information case from \cref{sec:ss_full}.
-\begin{figure}[h!]
+Again, the feedforward gain $L_c$ was used to eliminate the steady-state error; its computation will be discussed in \cref{sec:q12}. The resulting closed-loop system was simulated with a step reference input and the state estimates initialised at $\hat{x}_0 = \mqty(-20 & 30 & 50)$. The result is shown in \cref{fig:q6_output_servo}; both the output and the state estimation error are displayed. The state error decays to zero faster than the output attains it final value due to the faster observer poles. Also, there is only a marginal difference between the output feedback controller and the full information case from \cref{sec:ss_full}.
+\begin{figure}[ht!]
     \centering
     \includegraphics[]{media/q6/output_servo.eps}
     \caption{}
     \label{fig:q6_output_servo}
 \end{figure}
+
 \subsubsection{Disturbance rejection}
-\begin{figure}[h!]
+Now, the output feedback controller will be used to reject a step load disturbance. Because the disturbance is not directly measurable and also not controllable by $u$, the controller must be equipped with an observer of the disturbance; only then will it have the ability to reject it succesfully. Since a step disturbance is assumed, the disturbance model simply reads:
+                                $$v(k + 1) = v(k)$$
+in combination with an initial condition $v_0$ (for the unit step disturbance, $v_0 = 1$). To turn this model into an observer, the mismatch between the plant output and the estimated output will be fed as an input to the observer, multiplied by a gain $K_w$. Finally, the output of the controller $u(k)$ is based on the feedback law:
+                                $$u(k) = -L\hat{x}(k) - \hat{v}(k)$$
+which means that the state feedback law is applied on the state estimate, after which the disturbance estimate is subtracted. To build this system, the \textsc{Matlab} command \texttt{lft} was used in a similar fashion as before. \Cref{fig:q6_block_distrej} shows the layout of the (generalised) plant and controller.
+\begin{figure}[ht!]
     \centering
     \includegraphics[scale=1.3]{media/q6/block_distrej-03.eps}
     \caption{}
     \label{fig:q6_block_distrej}
 \end{figure}
-
+From \cref{fig:q6_block_distrej}, the state-space models of the plant and controller can be readily derived.
+\begin{equation}
+    \text{\textsc{Plant}}\qquad
+    \begin{aligned}
+        x(k+1) =& \Phi x(k) + \mqty(\Gamma&\Gamma)\mqty(v(k)\\u(k))\\
+        \mqty(y(k)\\u(k)\\y(k)) =& \mqty(C\\0\\C)x(k) + \mqty(0&0\\0&1\\0&0)\mqty(v(k)\\u(k))\\ 
+    \end{aligned}
+\end{equation}
+\phantom{x}
+\begin{equation}
+    \text{\textsc{Controller}}\qquad
+    \begin{aligned}
+        \mqty(\hat{x}(k)\\\hat{v}(k)) =& \mqty(\Phi-KC & \Gamma\\-K_wC&1)\mqty(\hat{x}(k)\\\hat{v}(k)) + \mqty(\Gamma&K\\0&K_\omega)\mqty(u(k)\\y(k))\\
+        u(k) =& \mqty(-L&-1)\mqty(\hat{x}(k)\\\hat{v}(k))
+    \end{aligned}
+\end{equation}
+The choice of $K_w$ entails the placement of an additional observer pole; the value of $K_w$ can be computed together with the state observer gain $K$ using the \textsc{Matlab} command \texttt{place} for the augmented controller system. This pole was placed at $s = -14$ or $z = 0.76$. The other observer and controller poles were kept at the same locations since they showed adequate performance. The sampling time is also the same as for the servo controller.
+\Cref{fig:q6_output_distrej} displays two plots; the top one is the reaction of the output to the step disturbance, the bottom plot is the estimate of the disturbance (which should of course converge to 1). The state estimates were initialised at $\hat{x}_0 = \mqty(1 & 3 & 5)$, the initial disturbance estimate was $\hat{v}_0 = -1$.
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=1]{media/q6/output_distrej.eps}
+    \caption{}
+    \label{fig:q6_output_distrej}
+\end{figure}
+Clearly, the controller does a good job to reject the disturbance. The estimate suffers from a little overshoot but then converges quickly to 1. From the evolution of output it can be seen that initially not much happens, this is because the negative disturbance estimate and the state feedback cancel each other out. When the disturbance estimate starts to converge, the output of the system starts changing as well before it eventually settles after ca. \SI{0.5}{\second}.
 \subsection{Full-information feedback using LQR}
 \label{sec:ss_lqr}
+Final
+\begin{figure}
+    \centering
+    \includegraphics[scale=1]{media/q7/lqr_comp.eps}
+    \caption{}
+    \label{fig:q7_lqr_comp}
+\end{figure}

@@ -165,11 +165,25 @@ Because the proportional gain $K_p$ does not affect the phase curve of the syste
 It has to be noted that the two first requirements are conflicting, since both the peak amplitude and the settling time must be minimised, without a quantifiable priority of one over the other. Indeed, in \cref{fig:pm_comparison} one can see that for $\phi_m = \ang{35}$, the peak value is slightly lower. However, because the relative difference in the peak value is relatively low compared to the difference in settling time, $\phi_m = \ang{40}$ is said to show the `better' performance.
 
 At this point, no better performance (in terms of settling time) can be achieved by using the PI controller structure: to lower the settling time $T_i$ must be decreased to amplify the lower frequencies to a greater extent. However, this creates two issues: firstly, the phase curve will at some point cross the \ang{-180} line, which will render the system immediately unstable: the gain will cross-over at a higher frequency. Decreasing the gain is not an option since it will yield a dramatic increase of the peak amplitude. Secondly, as illustrated by \cref{fig:pm_comparison} the smaller phase margin results in badly damped oscillatory artefacts in the response even before the point of instability is reached. Therefore, one must resort to D-action to add phase advance at these higher frequencies to keep sufficient phase margin and prevent the phase from crossing over. As in \cref{sec:continuoustracking}, a realizable D-term as described by \cref{eq:leadcomp} will be used with $N = 5$. 
-
+\begin{figure}[ht]
+    \centering
+    \includegraphics[]{media/q2/pi_bode_comparison.eps}
+    \caption{}
+    \label{fig:q2_bode_comparison}
+\end{figure}
 \sisetup{scientific-notation=engineering}
 The loop shaping process for the PID controller was as the following: first, the $T_d$ term was chosen such that the maximum phase contribution occurs at a frequency where the phase of the previous controller was about \ang{-170}. This left about \ang{15} of excess phase (that is on top of the `ideal' \ang{40}), which could then be absorbed by decreasing $T_i$ further. In the subsequent tuning process, the purpose was always to decrease $T_i$ as much as possible while keeping sufficient phase margin and prevent the phase from crossing the \ang{-180} line. Finally, $K_p$ was chosen to set the cross-over frequency at the peak of the phase curve. The best PID controller turned out to achieve a settling time of \SI{0.70}{\second} and a peak amplitude of \num{0.00285}.
 
-The final performance of the PID controller begs the question whether additional performance improvements could be made by adding additional gain with another D-term, just like in \cref{sec:continuoustracking}. The tuning of this PIDD controller was straightforward: one of the lead compensator was kept at a lower frequency to keep the phase from dipping under the \ang{-180} line, while the other lead compensator was placed at a frequency of about \SI{140}{\radian\per\second} to be able to have the desired phase margin at higher frequencies. After tuning, the resulting PIDD controller resulted in a settling time of \SI{0.4381}{\second} and a peak amplitude of \num{7.177e-05}. Although this performance is of course very nice, one can observe from \cref{fig:q2_bode_comparison} that the result from the PIDD is not desirable as for the other controllers, in the sense that there is a large phase contribution at lower frequencies and therefore inevitably also a decrease in gain amplification. This has as the result that the speed up of the settling time is `only' \%50. The problem is that due to the impending instability, the phase contribution could not be placed at higher frequencies to make it more limiting. One could therefore wonder whether the added complexity of the PIDD controller is worth the modest advancement in performance. The final controller has the following transfer function:
+The final performance of the PID controller begs the question whether additional performance improvements could be made by adding additional gain with another D-term, just like in \cref{sec:continuoustracking}. The tuning of this PIDD controller was straightforward: one of the lead compensator was kept at a lower frequency to keep the phase from dipping under the \ang{-180} line, while the other lead compensator was placed at a frequency of about \SI{140}{\radian\per\second} to be able to have the desired phase margin at higher frequencies. 
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[]{media/q2/pidd_response.eps}
+    \caption{}
+    \label{fig:q2_pidd_response}
+\end{figure}
+
+\noindent After tuning, the resulting PIDD controller resulted in a settling time of \SI{0.4381}{\second} and a peak amplitude of \num{7.177e-05}. 
+Although this performance is of course very nice, one can observe from \cref{fig:q2_bode_comparison} that the result from the PIDD is not desirable as for the other controllers, in the sense that there is a large phase contribution at lower frequencies and therefore inevitably also a decrease in gain amplification. This has as the result that the speed up of the settling time is `only' \%50. The problem is that due to the impending instability, the phase contribution could not be placed at higher frequencies to make it more limiting. One could therefore wonder whether the added complexity of the PIDD controller is worth the modest advancement in performance. The final controller has the following transfer function:
 $$ 
 \begin{aligned}
 C(s) &= 4464\qty(1 + \frac{1}{0.05s})
@@ -178,17 +192,3 @@ C(s) &= 4464\qty(1 + \frac{1}{0.05s})
      &= \frac{6.975 s^3 + 595.1 s^2 + \num{1.469e04} s + 111600}{\num{4.34e-05} s^3 + 0.01701 s^2 + 1.25 s}
 \end{aligned}
 $$
-
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[]{media/q2/pidd_response.eps}
-    \caption{}
-    \label{fig:q2_pidd_response}
-\end{figure}
-\begin{figure}[ht]
-    \centering
-    \includegraphics[]{media/q2/pi_bode_comparison.eps}
-    \caption{}
-    \label{fig:q2_bode_comparison}
-\end{figure}
