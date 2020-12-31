@@ -387,34 +387,34 @@ target_pole = complex(-zeta_target*w, sqrt(1 - zeta_target)*w);
 poles_cont = [-10, -1+4j, -1-4j; % Complex pole pair
               -10, -4+2j, -4-2j; % Complex pole pair
               target_pole, conj(target_pole), -1.3*w]; % Pure damping
-h5 = 0.02;
+h5 = 0.5/1.3/w;
 poles_disc = exp(poles_cont*h5);
 poles_disc = [poles_disc; [0.001 0.0015 0.002]]; % Deadbeat
 
 Gdss = canon(c2d(Gcss, h5, 'zoh'), 'canonical');
- 
-figure('Name', 'Q5: Controller design with pole-placement', 'NumberTitle', 'on')
-nfig_q5_step = get(gcf, 'Number'); hold on;
-figure('Name', 'Q5: Controller design with pole-placement (Pzmap)', 'NumberTitle', 'on')
-nfig_q5_pzmap = get(gcf, 'Number'); hold on; 
+%  
+% figure('Name', 'Q5: Controller design with pole-placement', 'NumberTitle', 'on')
+% nfig_q5_step = get(gcf, 'Number'); hold on;
+% figure('Name', 'Q5: Controller design with pole-placement (Pzmap)', 'NumberTitle', 'on')
+% nfig_q5_pzmap = get(gcf, 'Number'); hold on; 
 
-tin = 0:h5:2;
+tin = 0:h5:1.5;
 lgdtxt = {};
 
-for i = 1:length(poles_disc)
-    L = place(Gdss.A, Gdss.B, poles_disc(i,:));
-    Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
-    Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h5);
-    figure(nfig_q5_step);
-    specialstep(Hcl, tin);
-    figure(nfig_q5_pzmap);
-    specialpzmap(Hcl);
-    lgdtxt{end+1} = strrep(sprintf('%+7s  %+7s  %+7s', ...
-                                   num2str(poles_disc(i,1), '%.2g'), ...
-                                   num2str(poles_disc(i,2), '%.2g'), ...
-                                   num2str(poles_disc(i,3), '%.2g')), ...
-                           'i', 'j'); % Display with 'j' as imag unit
-end
+% for i = 1:length(poles_disc)
+%     L = place(Gdss.A, Gdss.B, poles_disc(i,:));
+%     Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
+%     Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h5);
+%     figure(nfig_q5_step);
+%     specialstep(Hcl, tin);
+%     figure(nfig_q5_pzmap);
+%     specialpzmap(Hcl);
+%     lgdtxt{end+1} = strrep(sprintf('%+7s  %+7s  %+7s', ...
+%                                    num2str(poles_disc(i,1), '%.2g'), ...
+%                                    num2str(poles_disc(i,2), '%.2g'), ...
+%                                    num2str(poles_disc(i,3), '%.2g')), ...
+%                            'i', 'j'); % Display with 'j' as imag unit
+% end
 % figure(nfig_q5_step);
 % title('\textbf{Comparison between various pole locations}');
 % ylabel('Amplitude');
@@ -425,17 +425,18 @@ end
 % rectangle('Position', 2*[-0.5 -0.5 1 1], 'Curvature', 1);
 % exportgraphics(gcf, '../tex/media/q5/dt_pzmap.eps');
 
-clearvars -except K1 K2 Gc s PIDDstruct N Gcss
+clearvars -except K1 K2 Gc s PIDDstruct N Gcss target_pole w h5
 
 %% Question 6: Output feedback control
 % -------------------------- TRACKING ------------------------------
-h6 = 0.0385;
+h6 = h5;
 Gdss = canon(c2d(Gcss, h6, 'zoh'), 'canonical');
 
 % Build the controller system system
-poles_fb = [-8 -12.01 -12];
+% poles_fb = [-8 -12.01 -12];
+poles_fb = [target_pole, conj(target_pole), -1.3*w];
 L = place(Gdss.A, Gdss.B, exp(h6*poles_fb));
-K = place(Gdss.A', Gdss.C', exp(h6*poles_fb.*2))';
+K = place(Gdss.A', Gdss.C', exp(h6*poles_fb.*1.3))';
 
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 
@@ -458,8 +459,8 @@ K_obs = ss(Gdss.A - K*Gdss.C, ... % A
 Hcl_out = lft(Gdss_ext, K_obs);
 Hcl_full = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h6);
 
-tin = 0:h6:2;
-x0 = [0 0 0 .5 .5 .5];
+tin = 0:h6:0.5;
+x0 = [0 0 0 -2 3 5]*10;
 [y, ~, x] = lsim(Hcl_out, ones(size(tin)), tin, x0);
 
 % Plot the results
@@ -469,11 +470,16 @@ nexttile
 stairs(tin, y); hold on;
 specialstep(Hcl_full, tin); xlabel('');
 ylabel('Amplitude')
-
+legend({'Output feedback', 'Full-information feedback'})
 nexttile; hold on;
 stairs(tin, x(:, 4:6) - x(:, 1:3));
 ylabel('State error');
 xlabel(tile, 'Time (s)', 'interpreter', 'latex');
+
+title(tile, '\textbf{Output feedback - Reference tracking}', ...
+        'Interpreter', 'latex');
+
+exportgraphics(gcf, '../tex/media/q6/output_servo.eps');
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss Gdss h6
 

@@ -42,8 +42,11 @@ Because the system is Type-I, integral action will not be necessary to avoid ste
 The formerly stated requirements are specified in the time-domain. Because the controller design will be achieved by shaping the loop transfer function, it makes sense to translate these requirements to an (approximate) frequency-domain counterpart. Because analytical results only exist for \nth{2}-order plants, these results will only serve as an approximate target value. Some iteration using a simulation of the closed-loop step response will be inevitable to fine-tune the controller design.
 
 As specified by \textcite{nise}, the following relations hold for a \nth{2}-order plant. First of all, the relation between the bandwidth of the closed-loop system and its settling time is:
-$$\omega_{BW} = \frac{4}{T_s\zeta}\sqrt{\qty(1 - 2\zeta^2)+\sqrt{4
-\zeta^4-4\zeta^2+2}}$$
+\begin{equation}
+    \omega_{BW} = \frac{4}{T_s\zeta}\sqrt{\qty(1 - 2\zeta^2)+\sqrt{4
+    \zeta^4-4\zeta^2+2}}
+    \label{eq:damping}
+\end{equation}
 Hence, to minimize the settling time one preferably has a damping ration $\zeta$ close to unity and maximise the $\omega_\text{BW}$, which in turn means that the cross-over frequency of the loop transfer function should be as large as possible. Furthermore, the overshoot of the system can be related to the damping ratio as follows:
 \begin{equation}
 \%\text{OS} = 100\times \exp(-\frac{\zeta \pi}{\sqrt{1-\zeta^2}})

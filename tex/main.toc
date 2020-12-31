@@ -1,24 +1,27 @@
 \boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
 \contentsline {section}{\numberline {1}Introduction}{1}{section.1}%
-\contentsline {section}{\numberline {2}Continous-time PID controller}{1}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Analysis of the plant}{1}{subsection.2.1}%
+\contentsline {section}{\numberline {2}Continous-time PID controller}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Analysis of the plant}{2}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Set-point tracking\textnormal {\phantom {xxx}(Question 1)}}{2}{subsection.2.2}%
-\contentsline {paragraph}{Controller structure}{2}{section*.4}%
-\contentsline {paragraph}{Frequency-domain requirements}{2}{section*.5}%
-\contentsline {paragraph}{Loop shaping}{3}{section*.6}%
-\contentsline {subsection}{\numberline {2.3}Disturbance rejection\textnormal {\phantom {xxx}(Question 2)}}{4}{subsection.2.3}%
-\contentsline {paragraph}{Controller structure}{5}{section*.10}%
-\contentsline {paragraph}{Frequency-domain requirements}{5}{section*.11}%
-\contentsline {paragraph}{Loop shaping}{6}{section*.12}%
-\contentsline {section}{\numberline {3}Discretisation of the problem}{8}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Discretisation of the plant \textnormal {\phantom {xxx}(Question 3)}}{8}{subsection.3.1}%
-\contentsline {paragraph}{Discretisation of the plant}{8}{section*.16}%
-\contentsline {subsection}{\numberline {3.2}Discretisation of the controllers \textnormal {\phantom {xxx}(Question 4)}}{9}{subsection.3.2}%
-\contentsline {paragraph}{Tracking controller}{9}{section*.17}%
-\contentsline {paragraph}{Disturbance rejection controller}{10}{section*.19}%
-\contentsline {section}{\numberline {4}State-space approach for controller design}{10}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Full-information feedback using pole-placement}{10}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Output feedback using pole-placement}{10}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Full-information feedback using LQR}{10}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Taking into account actuator limits}{10}{section.5}%
-\contentsline {section}{\numberline {6}Steady-state errors}{10}{section.6}%
+\contentsline {paragraph}{Controller structure}{3}{section*.4}%
+\contentsline {paragraph}{Frequency-domain requirements}{3}{section*.5}%
+\contentsline {paragraph}{Loop shaping}{4}{section*.6}%
+\contentsline {subsection}{\numberline {2.3}Disturbance rejection\textnormal {\phantom {xxx}(Question 2)}}{6}{subsection.2.3}%
+\contentsline {paragraph}{Controller structure}{6}{section*.10}%
+\contentsline {paragraph}{Frequency-domain requirements}{7}{section*.11}%
+\contentsline {paragraph}{Loop shaping}{7}{section*.12}%
+\contentsline {section}{\numberline {3}Discretisation of the problem}{10}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Discretisation of the plant \textnormal {\phantom {xxx}(Question 3)}}{10}{subsection.3.1}%
+\contentsline {paragraph}{Discretisation of the plant}{10}{section*.16}%
+\contentsline {subsection}{\numberline {3.2}Discretisation of the controllers \textnormal {\phantom {xxx}(Question 4)}}{10}{subsection.3.2}%
+\contentsline {paragraph}{Tracking controller}{10}{section*.17}%
+\contentsline {paragraph}{Disturbance rejection controller}{11}{section*.19}%
+\contentsline {section}{\numberline {4}State-space approach for controller design}{13}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Full-information feedback using pole-placement\textnormal {\phantom {xxx}(Question 5)}}{13}{subsection.4.1}%
+\contentsline {paragraph}{Selection of the pole locations}{13}{section*.22}%
+\contentsline {subsection}{\numberline {4.2}Output feedback using pole-placement\textnormal {\phantom {xxx}(Question 6)}}{15}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Servo problem}{15}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Disturbance rejection}{16}{subsubsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.3}Full-information feedback using LQR}{16}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Taking into account actuator limits}{18}{section.5}%
+\contentsline {section}{\numberline {6}Steady-state errors}{18}{section.6}%
