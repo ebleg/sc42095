@@ -121,10 +121,18 @@ The choice of $K_w$ entails the placement of an additional observer pole; the va
 Clearly, the controller does a good job to reject the disturbance. The estimate suffers from a little overshoot but then converges quickly to 1. From the evolution of output it can be seen that initially not much happens, this is because the negative disturbance estimate and the state feedback cancel each other out. When the disturbance estimate starts to converge, the output of the system starts changing as well before it eventually settles after ca. \SI{0.5}{\second}.
 \subsection{Full-information feedback using LQR}
 \label{sec:ss_lqr}
-Final
+Manual placement of the poles can sometimes be nonintuitive or overly complicated, especially for higher order systems. A potential solution for this issue exists in the form of the Linear Quadratic Regulator solution, which finds the optimal state feedback gain that minimises the cost function:\footnote{Although one could potentially also include a cross term involving both $u(k)$, $x(k)$, it is not frequently used in practice and therefore ommitted.}
+\begin{equation}
+    J = \sum^\infty_{k=1} x(k)^\top Q x(k) + u(k)^\top R u(k)
+    \label{eq:lqrcost}
+\end{equation}
+where $R\succ 0$ and $Q \succeq 0$ are weighting matrices that can be chosen as part of the controller design. From \cref{eq:lqrcost} it is quite clear that $Q$ puts a penalty on nonzero states while $R$ will penalise the controller effort. The main interest is to drive the output $y$ to zero as fast as possible, which is why it makes sense to base $Q$ on $C$:
+                $$ Q_0 = CC^\top $$
+Scalar multiples of $Q_0$ can then be chosen to put a greater (or perhaps smaller) penalty on the tracking error. Given that the resulting full state feedback controller must be able to track a step reference, a similar scheme is used as shown in \cref{fig:q6_block_servo} with a feedforward gain $L_c$ that acts on the reference. How $L_c$ is determined will be discussed in \cref{sec:q12}. 
 \begin{figure}
     \centering
     \includegraphics[scale=1]{media/q7/lqr_comp.eps}
     \caption{}
     \label{fig:q7_lqr_comp}
 \end{figure}
+\Cref{fig:q7_lqr_comp} shows the resulting step response for several choices of $Q$ and $R$. As one might expect, the fastest response is for the controller with the lowest penalty on the control effort and the highest penalty on the offset of the output. For now, no restrictions have been imposed on the controller effort; therefore the feedback law that corresponds with $Q = \num{5e4}\times Q_0$ and $R = 1$ has been chosen as the best performing LQR controller. The sampling period used for the simulations is again $h = \SI{0.0192}{\second}$.

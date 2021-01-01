@@ -331,11 +331,11 @@ format short
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
 %% Question 4: Discretize the controllers
-h4_tracking = stepinfo(feedback(K1.it6.tf*Gc, 1)).RiseTime/8;
-[~, ~, ~, wc] = margin(Gc*K2.it5.tf); % Get crossover frequency
-h4_distrej = stepinfo(feedback(Gc, K2.it5.tf)).PeakTime/20;
-h4_distrej = 1.1/wc;
-h4_distrej = 0.6/max(abs(pole(K2.it5.tf*Gc)));
+% h4_tracking = stepinfo(feedback(K1.it6.tf*Gc, 1)).RiseTime/8;
+% [~, ~, ~, wc] = margin(Gc*K2.it5.tf); % Get crossover frequency
+% h4_distrej = stepinfo(feedback(Gc, K2.it5.tf)).PeakTime/20;
+% h4_distrej = 1.1/wc;
+% h4_distrej = 0.6/max(abs(pole(K2.it5.tf*Gc)));
 h4_tracking = K1.it6.Td2*0.7/10;
 h4_distrej = K2.it5.Td1*0.2/10;
 
