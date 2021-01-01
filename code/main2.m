@@ -83,7 +83,7 @@ load 'controllers/K2'
 h = 15*K2.it5.Td1*0.2/10;
 K = c2d(K2.it5.tf, h, 'tustin');
 Gd = c2d(Gc, h, 'tustin');
-sys = [feedback(Gd, K); feedback(1, K*Gd)];
+sys = [feedback(Gd, K); -feedback(K*Gd, 1)];
 
 figure; hold on;
 tin = 0:h:0.5;
@@ -103,7 +103,7 @@ Gdss = canon(c2d(Gcss, h, 'zoh'), 'canonical');
 
 L = place(Gdss.A, Gdss.B, exp(h*[target_pole, conj(target_pole), -1.3*w]));
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
-sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], [Gdss.D; 0], h);
+sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], [Gdss.D; Lc], h);
 
 figure; hold on;
 tin = 0:h:0.5;
@@ -111,7 +111,7 @@ sim_with_input(sys, tin);
 title('\textbf{Pole placement controller}')
 exportgraphics(gcf, '../tex/media/q8/fullstate.eps');
 
-%% Output controller: servo
+% %% Output controller: servo
 poles_fb = [target_pole, conj(target_pole), -1.3*w];
 L = place(Gdss.A, Gdss.B, exp(h*poles_fb));
 K = place(Gdss.A', Gdss.C', exp(h*poles_fb.*1.3))';
@@ -122,19 +122,19 @@ Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 % IN: [r u] OUT: [y u u y r] --> extend with extra input 
 Gdss_ext = ss(Gdss.A, ... % A 
               [zeros(3, 1) Gdss.B], ... % B 
-              [Gdss.C; [0 0 0]; [0 0 0]; Gdss.C; [0 0 0]], ... % C
-              [[0 0]; [0 1]; [0 1]; [0 0]; [1 0]], h, ... % D
-              'InputName', {'r', 'u'}, 'OutputName', {'y', 'u', 'u', 'y', 'r'});
+              [Gdss.C; [0 0 0]; Gdss.C; [0 0 0]], ... % C
+              [[0 0]; [0 1]; [0 0]; [1 0]], h, ... % D
+              'InputName', {'r', 'u'}, 'OutputName', {'y', 'u', 'y', 'r'});
 
 % Output feedback controller
 % IN: [u y r] OUT: [u] 
 K_obs = ss(Gdss.A - K*Gdss.C, ... % A
            [Gdss.B K zeros(3, 1)], ... % B
-           -L, ... % C
-           [0 0 Lc], ... % D
-           h, 'InputName', {'u', 'y', 'r'}, 'OutputName', 'u');
+           repmat(-L, 2, 1), ... % C
+           repmat([0 0 Lc], 2, 1), ... % D
+           h, 'InputName', {'u', 'y', 'r'}, 'OutputName', {'u', 'u'});
 
-sys = lft(Gdss_ext, K_obs);
+sys = lft(Gdss_ext, K_obs, 1, 3);
 
 figure; hold on;
 tin = 0:h:0.5;
@@ -151,18 +151,18 @@ K = place([Gdss.A Gdss.B; [0 0 0 1]]', [Gdss.C 0]', ...
 % IN: [d u] OUT: [y u u y];
 Gdss_ext = ss(Gdss.A, ...
               [Gdss.B Gdss.B], ...
-              [Gdss.C; [0 0 0]; [0 0 0]; Gdss.C], ...
-              [[0 0]; [0 1]; [0 1]; [0 0]], h, ...
+              [Gdss.C; [0 0 0]; Gdss.C], ...
+              [[0 0]; [0 1]; [0 0]], h, ...
               'InputName', {'v', 'u'}, ...
-              'OutputName', {'y', 'u', 'u', 'y'});
+              'OutputName', {'y', 'u', 'y'});
 
 K_obs = ss([[Gdss.A; [0 0 0]] - K*Gdss.C, [Gdss.B; 1]], ... % A
            [[Gdss.B; 0], K], ... % B
-           [-L -1], ... % C
-           0, h, ... % D
-           'InputName', {'u', 'y'}, 'OutputName', 'u');
+           repmat([-L -1], 2, 1), ... % C
+           zeros(2), h, ... % D
+           'InputName', {'u', 'y'}, 'OutputName', {'u', 'u'});
 
-sys = lft(Gdss_ext, K_obs);
+sys = lft(Gdss_ext, K_obs, 1, 2);
 
 figure; hold on;
 tin = 0:h:0.8;
@@ -174,7 +174,7 @@ exportgraphics(gcf, '../tex/media/q8/outputdistrej.eps');
 R = 1; Q = Gdss.C'*Gdss.C*5e4;
 [L, ~, lqr_poles]= dlqr(Gdss.A, Gdss.B, Q, R);
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
-sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], Gdss.D, h);
+sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], [Gdss.D; Lc], h);
 
 figure; hold on;
 tin = 0:h:0.8;

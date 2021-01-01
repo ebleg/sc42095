@@ -119,7 +119,7 @@ The choice of $K_w$ entails the placement of an additional observer pole; the va
     \label{fig:q6_output_distrej}
 \end{figure}
 Clearly, the controller does a good job to reject the disturbance. The estimate suffers from a little overshoot but then converges quickly to 1. From the evolution of output it can be seen that initially not much happens, this is because the negative disturbance estimate and the state feedback cancel each other out. When the disturbance estimate starts to converge, the output of the system starts changing as well before it eventually settles after ca. \SI{0.5}{\second}.
-\subsection{Full-information feedback using LQR}
+\subsection{Full-information feedback using LQR\textnormal{\phantom{xxx}(Question 7)}}
 \label{sec:ss_lqr}
 Manual placement of the poles can sometimes be nonintuitive or overly complicated, especially for higher order systems. A potential solution for this issue exists in the form of the Linear Quadratic Regulator solution, which finds the optimal state feedback gain that minimises the cost function:\footnote{Although one could potentially also include a cross term involving both $u(k)$, $x(k)$, it is not frequently used in practice and therefore ommitted.}
 \begin{equation}

@@ -1,8 +1,73 @@
-\subsection{Controller effort computation}
+\subsection{Controller effort computation\textnormal{\phantom{xxx}(Question 8)}}
+In this section the controller effort associated with the controllers designed in \cref{sec:continuoustracking,sec:continuousdisturbance,sec:ss_full,sec:ss_output,sec:ss_lqr} will be computed. This is because there is an actuator saturation limit imposed of $\pm20$; since the controllers were predominantly designed with speed as a main priority, it is they will not meet this condition. This is why in \cref{sec:retunepid,sec:retunepolep,sec:retunelqr} the controller designs will be revisited to address this condition.
 
-\subsection{PID-controllers}
-\subsection{State feedback controllers (pole placement)}
-\subsection{State feedback controllers (LQR))}
+The input effort is easily computed from the previously obtained systems. For the PID-controllers, the associated transfer function will be computed, while for the state-space controllers an extra output with the controller effort will be added to the system.\\
+\indent For the tracking controllers, the transfer function from the reference $r$ to the controller effort $u$ is equal to the controller sensitivity $KS$:
+$$ KS(s) = \frac{K(s)}{1 + G(s)K(s)} $$
+To compute the controller effort resulting from a load disturbance, another transfer function has to be used:
+$$ T(s) = \frac{G(s)K(s)}{1 + G(s)K(s)}$$
+which is, by definition, the complementary sensitivity transfer function of the closed-loop system. 
 
-\section{Steady-state errors}
+For the state-space methods, the output matrix of the controller will be ``doubled" (i.e. the same output twice); this way the \texttt{lft} command will leave the second output as an output for the closed-loop system while the first is connected to the generalised plant. For the full-information case this was not even required since the control input is based on the actual states instead of observed ones, so the feedback gain $-L$ is stacked under the output matrix $C$ to obtain the second output.
+
+\Crefrange{fig:q8_pdd}{fig:q8_lqr} show the step response and the associated control effort (measured on the right axis). All the tracking controllers violate the bounds; especially the PDD controller induces very high inputs.
+On the other hand, the control action for the disturbance rejection controllers is very small. This is to be expected, given that the magnitude of the complementary sensitivity transfer function (which determines the relation between the load disturbance and controller effort) is usually only larger than 1 in a small frequency band; at these frequencies the open-loop system outperforms its closed-loop counterpart. Hence, unless $\abs{T}$ has a very large peak at some frequency (this would arguably indicate a bad controller design and poor stability margins), most of the lower frequencies will be damped. For example, the PIDD 
+disturbance rejection controller has a complementary sensitivity with peak value 1.37 at a frequency of \SI{281}{\radian\per\second}. Combined with a the Fourier transform of the step input it is clear that none of the input frequencies will be amplified to a magnitude that is much greater than 1.
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.9]{media/q8/pdd.eps}
+    \caption{Step response and controller effort of the PDD-controller from \cref{sec:continuoustracking,sec:discretisecontrollers}. The actuator saturation limits are violated by a large amount.}
+    \label{fig:q8_pdd}
+\end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.9]{media/q8/pd.eps}
+    \caption{Step response and controller effort of the discretised PD-controller from \cref{sec:continuoustracking,sec:discretisecontrollers}. Although this was not the final design from the design process, it will be used for the redesign in \cref{sec:retunepid}. The bounds are still violated, but not as extreme as in \cref{fig:q8_pdd}.}
+    \label{fig:q8_pd}
+\end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.9]{media/q8/pidd.eps}
+    \caption{Step response and controller effort of the discretised PIDD-controller from \cref{sec:continuousdisturbance}. The final controller input settles at a value of -1, which indicates that the step disturbance is indeed rejected. The actuator saturation limits are not violated.}
+    \label{fig:q8_pidd}
+\end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.9]{media/q8/fullstate.eps}
+    \caption{Step response and controller effort of the full-information state feedback controller from \cref{sec:ss_full}. The actuator saturation limits are violated.}
+    \label{fig:q8_fullstate}
+\end{figure}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.9]{media/q8/outputservo.eps}
+    \caption{Step response and controller effort of the output feedback servo controller \cref{sec:ss_output}. The required controller effort is similar to the full-information controller from \cref{fig:q8_fullstate}, which makes sense because they have the same state feedback gain $L$. Again, the actuator saturation limits are violated.}
+    \label{fig:q8_outputservo}
+\end{figure}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.9]{media/q8/outputdistrej.eps}
+    \caption{Step response and controller effort for the output feedback disturbance rejection controller from \cref{sec:ss_output}. The input settles at -1 which indicates that the load disturbance is rejected --- the net input to the plant will be 0. The saturation limits are not violated.}
+    \label{fig:q8_outputdistrej}
+\end{figure}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.9]{media/q8/lqr.eps}
+    \caption{Step response and controller effort for the full-information LQR controller form \cref{sec:ss_lqr}. The actuator limits are violated.}
+    \label{fig:q8_lqr}
+\end{figure}
+
+\subsection{PID-controllers\textnormal{\phantom{xxx}(Question 9)}}
+\label{sec:retunepid}
+
+
+
+\subsection{State feedback controllers (pole placement)\textnormal{\phantom{xxx}(Question 10)}}
+\label{sec:retunepolep}
+\subsection{State feedback controllers (LQR))\textnormal{\phantom{xxx}(Question 11)}}
+\label{sec:retunelqr}
+
+\section{Steady-state errors\textnormal{\phantom{xxx}(Question 12)}}
 \label{sec:q12}
