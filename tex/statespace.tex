@@ -16,12 +16,15 @@ The closed-loop state-space system in \cref{fig:q5_block_statefeedback}  (the fe
         y(k) &= Cx(k)\\
     \end{aligned}
 \end{equation}
-According to the pole-placement theorem, the all poles of the system can be moved to any location of choice, provided that the system is reachable. Because the $\Phi$ matrix is invertible (this is always the case for sampled continuous-time systems, which cannot have a pole at $s = -\infty$), controllability and reachability are equivalent statements for this system. The reachability condition can be checked using the rank of the controllability matrix:
+According to the pole-placement theorem, all the poles of the system can be moved to any location of choice, provided that the system is reachable. Because the $\Phi$ matrix is invertible (this is always the case for sampled continuous-time systems, which cannot have a pole at $s = -\infty$), controllability and reachability are equivalent statements for this system. The reachability condition can be checked using the rank of the controllability matrix:
 $$ W_c = \mqty(\Gamma & \Phi \Gamma & \cdots & \Phi^{n-1}\Gamma)$$
 The system is reachable if and only if $\mathrm{rank}(W_c) = n$ ($n$ is the number of states), which is indeed the case for this system. As such, one can move all the poles to arbitrary locations using state-feedback.
 
 \paragraph{Selection of the pole locations} Obviously, the selection of the closed-loop poles will be of major influence on the behaviour of the system. Therefore, it is important to choose them wisely. For the controller design, these locations where picked in the $s$-plane for continous-time systems, after which they are mapped to the $z$-plane for discrete-time systems using the relation:
-$$ p_z = \exp(hp_s)$$
+\begin{equation}
+    p_z = \exp(hp_s) 
+    \label{eq:polemapping}
+\end{equation}
 where $h$ is the sampling period, $p_z$ the pole location in the $z$-plane and $p_s$ the pole location in the $s$-plane. In the $s$-plane, the characteristics of the poles are very straightforward to compute:
 $$ \omega = \abs{p_s} \qquad \zeta = -\frac{\Re{p_s}}{\abs{p_s}}$$
 The general idea is to choose a dominant pole pair that will induce a second-order response with the desired $\zeta$ and $\omega$, and place the other pole(s) at a faster location; the result will then be approximately equal to the `design' response because the other modes will die out much quicker.

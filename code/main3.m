@@ -14,7 +14,7 @@ load 'controllers/K1'
 load 'controllers/PIDstruct'
 
 h = 0.05;
-Gd = c2d(Gcss, h, 'zoh');
+Gd = canon(c2d(Gcss, h, 'zoh'), 'companion');
 
 %% PD redesign
 K_PD_v2 = K1.it5;
@@ -26,13 +26,15 @@ K_PD_v2.Td1 = 0;
 
 K_PD_v2 = build_PIDD(K_PD_v2);
 
-% figure
-% sim_with_input([feedback(K_PD_v2.tf*Gc, 1); feedback(K_PD_v2.tf, Gc)], ...
-%                 linspace(0, 1, 5e2));
-% figure
-% sim_with_input([feedback(K_PD_v2.Kp*Gd, 1); feedback(K_PD_v2.Kp, Gd)], ...
-%                 0:h:1);
-% specialstep(feedback(K_PD_v2.tf*Gc, 1), 'ShowGoodies', 'on');
+figure
+sim_with_input([feedback(K_PD_v2.Kp*Gd, 1); feedback(K_PD_v2.Kp, Gd)], ...
+                0:h:1.2);
+sim_with_input([feedback(K_PD_v2.tf*Gc, 1); feedback(K_PD_v2.tf, Gc)], ...
+                linspace(0, 1, 5e2));
+legend({'DT system output', 'CT system output', 'CT controller effort',  ...
+        'DT controller effort'}, 'location', 'best');
+title('\textbf{Redesigned P-controller (servo)}')
+% exportgraphics(gcf, '../tex/media/q9/pdredesign.eps');
 
 %% Pole placement redesign
 OS_max = 1;
@@ -52,17 +54,21 @@ Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss v
 sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], [Gdss.D; Lc], h);
 
 figure; hold on;
-tin = 0:h:2;
+tin = 0:h:1.2;
 sim_with_input(sys, tin);
 title('\textbf{Pole placement controller}')
 fprintf('Settling time: %.3g\n', ...
     stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).SettlingTime);
 fprintf('Overshoot: %.3g\n', ...
     stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).Overshoot);
+title('\textbf{Redesigned full-information controller}')
+% exportgraphics(gcf, '../tex/media/q10/ppredesign.eps');
 
 %% Output feedback
-L = place(Gdss.A, Gdss.B, exp(h*poles_fb));
-K = place(Gdss.A', Gdss.C', exp(h*poles_fb.*0.001))';
+% poles_fb2 = 1.132*poles_fb;
+poles_fb2 = poles_fb;
+L = place(Gdss.A, Gdss.B, exp(h*poles_fb2));
+K = place(Gdss.A', Gdss.C', exp(h*poles_fb2.*1.3))';
 
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 
@@ -85,24 +91,27 @@ K_obs = ss(Gdss.A - K*Gdss.C, ... % A
 sys = lft(Gdss_ext, K_obs, 1, 3);
 
 figure; hold on;
-tin = 0:h:2;
-sim_with_input(sys, tin);
-title('\textbf{Output feedback controller (servo)}')
+tin = 0:h:1.2;
+sim_with_input(sys, tin, [0 0 0 -2 3 5]*10);
+title('\textbf{Redesigned output feedback controller (servo)}')
+% exportgraphics(gcf, '../tex/media/q10/outppredesign.eps');
 
 %% LQR design
 Q0 = Gdss.C'*Gdss.C;
-Q = 425*Q0;
+Q = 428*Q0;
 R = 1;
 L = dlqr(Gdss.A, Gdss.B, Q, R);
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 
 sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], [Gdss.D; Lc], h);
 
-% figure; hold on;
-% tin = 0:h:2;
-% sim_with_input(sys, tin);
-% title('\textbf{Pole placement controller}')
-% fprintf('Settling time: %.3g\n', ...
-%     stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).SettlingTime);
-% fprintf('Overshoot: %.3g\n', ...
-%     stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).Overshoot);
+figure; hold on;
+tin = 0:h:2;
+sim_with_input(sys, tin);
+title('\textbf{Pole placement controller}')
+fprintf('Settling time: %.3g\n', ...
+    stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).SettlingTime);
+fprintf('Overshoot: %.3g\n', ...
+    stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).Overshoot);
+title('\textbf{Redesigned LQR controller (servo)}')
+% exportgraphics(gcf, '../tex/media/q11/lqrredesign.eps');

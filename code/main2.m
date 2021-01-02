@@ -14,16 +14,20 @@ Gcss = canon(ss(Gc), 'companion');
 %% Reference tracking PDD
 load 'controllers/K1'
 load 'controllers/PIDstruct'
-% h = K1.it6.Td2*0.7/10;
-% K = c2d(K1.it6.tf, h, 'tustin');
-% Gd = c2d(Gc, h, 'zoh');
-% sys = [feedback(K*Gd, 1); feedback(K, Gd)];
-% 
-% figure; hold on;
-% tin = 0:h:0.05;
-% sim_with_input(sys, tin);
-% title('\textbf{PDD controller (reference tracking)}')
-% exportgraphics(gcf, '../tex/media/q8/pdd.eps');
+h = K1.it6.Td2*0.7/10;
+K = c2d(K1.it6.tf, h, 'tustin');
+Gd = c2d(Gc, h, 'zoh');
+sys = [feedback(K*Gd, 1); feedback(K, Gd)];
+
+figure; hold on;
+tin = 0:h:0.05;
+sim_with_input(sys, tin);
+sim_with_input([feedback(K1.it6.tf*Gc, 1); feedback(K1.it6.tf, Gc)], ...
+               linspace(0, max(tin)));
+legend({'DT system output', 'CT system output', 'DT controller effort',  ...
+   'CT controller effort'}, 'location', 'east');
+title('\textbf{PDD controller (reference tracking)}');
+exportgraphics(gcf, '../tex/media/q8/pdd.eps');
 
 %% Reference tracking PD
 h = K1.it5.Td1*0.7/10;
@@ -35,8 +39,12 @@ sys = [feedback(K*Gd, 1); feedback(K, Gd)];
 figure; hold on;
 tin = 0:h:0.5;
 sim_with_input(sys, tin);
-title('\textbf{PD controller (reference tracking)}')
-% exportgraphics(gcf, '../tex/media/q8/pd.eps');
+sim_with_input([feedback(K1.it5.tf*Gc, 1); feedback(K1.it5.tf, Gc)], ...
+               linspace(0, max(tin)));
+title('\textbf{PD controller (servo)}')
+legend({'DT system output', 'CT system output', 'DT controller effort',  ...
+        'CT controller effort'}, 'location', 'east');
+exportgraphics(gcf, '../tex/media/q8/pd.eps');
 
 %% Disturbance rejection PIDD
 load 'controllers/K2'
@@ -48,6 +56,10 @@ sys = [feedback(Gd, K); -feedback(K*Gd, 1)];
 figure; hold on;
 tin = 0:h:0.5;
 sim_with_input(sys, tin);
+sim_with_input([feedback(Gc, K2.it5.tf); -feedback(Gc*K2.it5.tf, 1)], ...
+               linspace(0, max(tin)));
+legend({'DT system output', 'CT system output', 'DT controller effort',  ...
+   'CT controller effort'}, 'location', 'best');
 title('\textbf{PIDD controller (disturbance rejection)}')
 exportgraphics(gcf, '../tex/media/q8/pidd.eps');
 
@@ -98,11 +110,10 @@ K_obs = ss(Gdss.A - K*Gdss.C, ... % A
 sys = lft(Gdss_ext, K_obs, 1, 3);
 
 figure; hold on;
-tin = 0:h:0.5;
-sim_with_input(sys, tin);
+tin = 0:h:1;
+sim_with_input(sys, tin, [0 0 0 -2 3 5]*10);
 title('\textbf{Output feedback controller (servo)}')
 exportgraphics(gcf, '../tex/media/q8/outputservo.eps');
-
 
 %% Output disturbance rejection 
 % poles_fb = [-8 -12.01 -12];
@@ -128,7 +139,7 @@ sys = lft(Gdss_ext, K_obs, 1, 2);
 
 figure; hold on;
 tin = 0:h:0.8;
-sim_with_input(sys, tin);
+sim_with_input(sys, tin, [0 0 0 1 3 5 -1]);
 title('\textbf{Output feedback controller (disturbance rejection)}')
 exportgraphics(gcf, '../tex/media/q8/outputdistrej.eps');
 
