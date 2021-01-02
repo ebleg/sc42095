@@ -1,3 +1,4 @@
+[Iets over sampling time]
 \subsection{Controller effort computation\textnormal{\phantom{xxx}(Question 8)}}
 In this section the controller effort associated with the controllers designed in \cref{sec:continuoustracking,sec:continuousdisturbance,sec:ss_full,sec:ss_output,sec:ss_lqr} will be computed. This is because there is an actuator saturation limit imposed of $\pm20$; since the controllers were predominantly designed with speed as a main priority, it is they will not meet this condition. This is why in \cref{sec:retunepid,sec:retunepolep,sec:retunelqr} the controller designs will be revisited to address this condition.
 
@@ -101,6 +102,13 @@ The output feedback controller design was based on the same pole locations; agai
 
 \subsection{Redesign of the LQR controller\textnormal{\phantom{xxx}(Question 11)}}
 \label{sec:retunelqr}
+The entire purpose of the LQR controller synthesis is make the tuning process more intuitive. The previous controller design showed a dramatic violation of the actuator bounds. This problem can be addressed by either setting the penalty on the states lower, or the penalty on the input higher. Because there is only one input, the tuning is always relative (the absolute LQ cost will of course change, but the location of the minimum depends on the relative difference), and there is no need to penalise one input more than another. This is why $R$ was kept at 1 and the multiplier of $Q_0 = C^\top C$ was adjusted to satisfy the constraints. The resulting $Q$ matrix is:
+$$ Q = 428\times Q_0 = \mqty(0.00019165 & 0.0005272 &  0.00079125\\
+                             0.00052727 & 0.0014506 &  0.0021768\\
+                             0.00079125 & 0.0021768 &  0.0032667\\) $$
+Using the \textsc{Matlab}-command \texttt{dlqr}, the resulting gain matrix turned out to be:
+ $$L = \mqty(0.09402 & 0.096722 & 0.09866)$$
+\Cref{fig:q11_lqrredesign} shows the corresponding time response and controller effort. There is no overshoot, and the settling time is \SI{1.69}{\second}, which is slower than the pole placement controllers. This is probably because the LQR method produces a fairly conservative controller with ample stability margins, resulting in a slower response.
 \begin{figure}[ht]
     \centering
     \includegraphics{media/q11/lqrredesign.eps}
