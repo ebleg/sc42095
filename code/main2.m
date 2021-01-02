@@ -3,49 +3,7 @@ close all; clearvars; clc;
 
 s = tf('s');
 
-%% Plot settings
-customhexcolors = {'2ecc71', '3498db',  'f1c40f', 'e74c3c', '34495e',  ...
-                   'e67e22', '9b59b6', '7f8c8d', }; 
-customcolors = zeros(length(customhexcolors), 3);
-for i = 1:length(customhexcolors)
-   customcolors(i,:) = hex2dec({customhexcolors{i}(1:2), ...
-                                customhexcolors{i}(3:4), ...
-                                customhexcolors{i}(5:6)})./255;
-end
-
-set(groot, 'defaultAxesColorOrder', customcolors)
-% set(groot, 'defaultAxesLineStyleOrder', {'-x', '-^', '-v', '->', '-<'})
-set(groot, 'defaultAxesLineWidth', 1)
-set(groot, 'defaultAxesXGrid', 'on');
-set(groot, 'defaultAxesYGrid', 'on');
-% set(groot, 'defaultAxesFontName', 'Lucida Sans');
-set(groot,'defaultTextInterpreter','latex');
-set(groot, 'defaultAxesTickLabelInterpreter','latex');
-set(groot, 'defaultLegendInterpreter','latex');
-set(groot, 'defaultLegendFontSize', 10);
-set(groot, 'defaultAxesFontSize', 10);
-set(groot, 'defaultLineLineWidth', 1.5);
-set(groot, 'defaultStairLineWidth', 1.5)
-set(groot, 'defaultAxesLabelFontSizeMultiplier', 1.1);
-set(groot, 'defaultAxesTitleFontSizeMultiplier', 1.15);
-set(groot, 'defaultAxesTitleFontWeight', 'bold');
-set(groot, 'defaultAxesBox', 'on');
-set(groot, 'defaultAxesTickDir', 'both');
-set(groot, 'defaultAxesTickLength', [0.005 0.005]);
-set(groot,  'defaultAxesTickDirMode', 'manual');
-
-% Figure settings
-set(groot, 'defaultFigurePaperUnits', 'centimeters');
-set(groot, 'defaultFigureUnits', 'centimeters');
-set(groot, 'defaultFigureInvertHardcopy', 'off');
-set(groot, 'defaultFigureColor', [1 1 1]);
-
-% Position & size
-set(groot, 'defaultFigurePosition', [10 10 12 8]);
-set(groot, 'defaultAxesPosition', [0.1, 0.13, 0.85, 0.77]);
-
-set(groot, 'defaultTiledLayoutTileSpacing', 'compact')
-set(groot, 'defaultTiledLayoutPadding', 'compact')
+run plot_settings;
 
 %% Plant
 Gc = tf([1 20], [1 24 144 0]);
@@ -55,19 +13,21 @@ Gcss = canon(ss(Gc), 'companion');
 
 %% Reference tracking PDD
 load 'controllers/K1'
-h = K1.it6.Td2*0.7/10;
-K = c2d(K1.it6.tf, h, 'tustin');
-Gd = c2d(Gc, h, 'zoh');
-sys = [feedback(K*Gd, 1); feedback(K, Gd)];
-
-figure; hold on;
-tin = 0:h:0.05;
-sim_with_input(sys, tin);
-title('\textbf{PDD controller (reference tracking)}')
-exportgraphics(gcf, '../tex/media/q8/pdd.eps');
+load 'controllers/PIDstruct'
+% h = K1.it6.Td2*0.7/10;
+% K = c2d(K1.it6.tf, h, 'tustin');
+% Gd = c2d(Gc, h, 'zoh');
+% sys = [feedback(K*Gd, 1); feedback(K, Gd)];
+% 
+% figure; hold on;
+% tin = 0:h:0.05;
+% sim_with_input(sys, tin);
+% title('\textbf{PDD controller (reference tracking)}')
+% exportgraphics(gcf, '../tex/media/q8/pdd.eps');
 
 %% Reference tracking PD
 h = K1.it5.Td1*0.7/10;
+
 K = c2d(K1.it5.tf, h, 'tustin');
 Gd = c2d(Gc, h, 'zoh');
 sys = [feedback(K*Gd, 1); feedback(K, Gd)];
@@ -76,7 +36,7 @@ figure; hold on;
 tin = 0:h:0.5;
 sim_with_input(sys, tin);
 title('\textbf{PD controller (reference tracking)}')
-exportgraphics(gcf, '../tex/media/q8/pd.eps');
+% exportgraphics(gcf, '../tex/media/q8/pd.eps');
 
 %% Disturbance rejection PIDD
 load 'controllers/K2'
@@ -110,8 +70,9 @@ tin = 0:h:0.5;
 sim_with_input(sys, tin);
 title('\textbf{Pole placement controller}')
 exportgraphics(gcf, '../tex/media/q8/fullstate.eps');
+% 
 
-% %% Output controller: servo
+%% Output controller: servo
 poles_fb = [target_pole, conj(target_pole), -1.3*w];
 L = place(Gdss.A, Gdss.B, exp(h*poles_fb));
 K = place(Gdss.A', Gdss.C', exp(h*poles_fb.*1.3))';
@@ -142,6 +103,7 @@ sim_with_input(sys, tin);
 title('\textbf{Output feedback controller (servo)}')
 exportgraphics(gcf, '../tex/media/q8/outputservo.eps');
 
+
 %% Output disturbance rejection 
 % poles_fb = [-8 -12.01 -12];
 L = place(Gdss.A, Gdss.B, exp(h*poles_fb));
@@ -170,6 +132,7 @@ sim_with_input(sys, tin);
 title('\textbf{Output feedback controller (disturbance rejection)}')
 exportgraphics(gcf, '../tex/media/q8/outputdistrej.eps');
 
+
 %% LQR Controller
 R = 1; Q = Gdss.C'*Gdss.C*5e4;
 [L, ~, lqr_poles]= dlqr(Gdss.A, Gdss.B, Q, R);
@@ -181,20 +144,3 @@ tin = 0:h:0.8;
 sim_with_input(sys, tin);
 title('\textbf{LQR controller}')
 exportgraphics(gcf, '../tex/media/q8/lqr.eps');
-
-%%
-function ax = sim_with_input(sys, tin)
-    set(gcf, 'Position', get(gcf, 'Position').*[1 1 1.3 0.8]);
-    specialstep(sys(1,:), tin);
-    ylabel('System output');
-    yyaxis right
-    u = specialstep(sys(2,:), tin);
-    set(gca, 'Position', get(gca, 'Position').*[1.05 1.1 0.9 0.9]);
-    set(gca, 'YColor', 'black')
-    ylabel('Controller effort')
-    
-    [~, max_input_idx] = max(abs(u));
-    scatter(tin(max_input_idx), u(max_input_idx), 50, 's', 'filled');
-    subtitle(sprintf('$u_\\mathrm{max}$ = %.4g', u(max_input_idx)));
-    legend('System output', 'Controller effort', 'Location', 'best')
-end
