@@ -52,14 +52,13 @@ disturbance rejection controller has a complementary sensitivity with peak value
     \caption{Step response and controller effort for the output feedback disturbance rejection controller from \cref{sec:ss_output}. The input settles at -1 which indicates that the load disturbance is rejected --- the net input to the plant will be 0. The saturation limits are not violated.}
     \label{fig:q8_outputdistrej}
 \end{figure}
-
+\FloatBarrier
 \begin{figure}[ht!]
     \centering
     \includegraphics[scale=1]{media/q8/lqr.eps}
     \caption{Step response and controller effort for the full-information LQR controller form \cref{sec:ss_lqr}. The actuator limits are violated.}
     \label{fig:q8_lqr}
 \end{figure}
-
 \subsection{Redesign of the PDD-controller\textnormal{\phantom{xxx}(Question 9)}}
 \label{sec:retunepid}
 For the redesign of the reference-tracking PIDD-controller, it is quite clear from \cref{fig:q8_pdd} that the extra D-term won't be required when the actuator limits are imposed; the gain can simply not be increased to a high enough level such that the extra phase contribution becomes relevant. For a PD-controller the height of the maximum input `spike' at $t=0$ can be readily computed with the Initial Value Theorem and the transfer function of the controller. This results in
@@ -73,7 +72,7 @@ Recall from \cref{sec:continuoustracking} that the maximal allowed gain for prop
     \caption{Redesigned P-controller for reference-tracking.}
     \label{fig:q9_pdredesign}
 \end{figure}
-
+\FloatBarrier
 
 \subsection{Redesign of the state feedback controllers\textnormal{\phantom{xxx}(Question 10)}}
 \label{sec:retunepolep}
@@ -99,6 +98,7 @@ The output feedback controller design was based on the same pole locations; agai
     \caption{}
     \label{fig:q10_outppredesign}
 \end{figure}
+\FloatBarrier
 
 \subsection{Redesign of the LQR controller\textnormal{\phantom{xxx}(Question 11)}}
 \label{sec:retunelqr}
@@ -116,5 +116,6 @@ Using the \textsc{Matlab}-command \texttt{dlqr}, the resulting gain matrix turne
     \label{fig:q11_lqrredesign}
 \end{figure}
 
+\clearpage
 \section{Steady-state errors\textnormal{\phantom{xxx}(Question 12)}}
 \label{sec:q12}
