@@ -143,7 +143,6 @@ sim_with_input(sys, tin, [0 0 0 1 3 5 -1]);
 title('\textbf{Output feedback controller (disturbance rejection)}')
 exportgraphics(gcf, '../tex/media/q8/outputdistrej.eps');
 
-
 %% LQR Controller
 R = 1; Q = Gdss.C'*Gdss.C*5e4;
 [L, ~, lqr_poles]= dlqr(Gdss.A, Gdss.B, Q, R);

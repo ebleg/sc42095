@@ -118,5 +118,4 @@ fprintf('Settling time: %.3g\n', ...
     stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).SettlingTime);
 fprintf('Overshoot: %.3g\n', ...
     stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).Overshoot);
-title('\textbf{Redesigned full-information controller}')
-% exportgraphics(gcf, '../tex/media/q11/lqrredesign.eps');
+exportgraphics(gcf, '../tex/media/q11/lqrredesign.eps');

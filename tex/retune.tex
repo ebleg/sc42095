@@ -1,6 +1,6 @@
 [Iets over sampling time]
 \subsection{Controller effort computation\textnormal{\phantom{xxx}(Question 8)}}
-In this section the controller effort associated with the controllers designed in \cref{sec:continuoustracking,sec:continuousdisturbance,sec:ss_full,sec:ss_output,sec:ss_lqr} will be computed. This is because there is an actuator saturation limit imposed of $\pm20$; since the controllers were predominantly designed with speed as a main priority, it is they will not meet this condition. This is why in \cref{sec:retunepid,sec:retunepolep,sec:retunelqr} the controller designs will be revisited to address this condition.
+In this section the controller effort associated with the controllers designed in \cref{sec:continuoustracking,sec:continuousdisturbance,sec:ss_full,sec:ss_output,sec:ss_lqr} will be computed. The reason behind this analysis is that the actuators known to saturate at $u = \pm20$; since the controllers were predominantly designed with speed as a main priority, it they will likely violate this constraint. This is why in \cref{sec:retunepid,sec:retunepolep,sec:retunelqr} the controller designs will be revisited to address new restriction.
 
 The input effort is easily computed from the previously obtained systems. For the PID-controllers, the associated transfer function will be computed, while for the state-space controllers an extra output with the controller effort will be added to the system.\\
 \indent For the tracking controllers, the transfer function from the reference $r$ to the controller effort $u$ is equal to the controller sensitivity $KS$:
@@ -119,3 +119,34 @@ Using the \textsc{Matlab}-command \texttt{dlqr}, the resulting gain matrix turne
 \clearpage
 \section{Steady-state errors\textnormal{\phantom{xxx}(Question 12)}}
 \label{sec:q12}
+In this section several methods will be presented to eliminate steady-state errors for both disturbance rejection as tracking schemes; most of which have already been applied in the controllers discussed in previous sections. \cite{nise}
+\subsection*{PID controllers}
+\paragraph{Reference tracking}
+For reference tracking, the steady-state error can be computed using the transfer function from the reference $r$ to the tracking error $e$, which is equal to the sensitivity transfer function $S$:
+$$ S = \frac{1}{1 + G(s)K(s)}$$
+The steady-state error as a result of a reference step can then be computed using the Final Value Theorem:
+$$e_{ss} = \lim_{s\to 0} \frac{1}{1 + G(s)K(s)}$$
+From this equation it is clear that if (at least) either $G$ or $K$ has a pole at $s = 0$, the denominator will become infinitely large and $e_{ss}$ will be 0. The system discussed in this report indeed has a pole at $s = 0$; it is therefore Type I and $K$ does not need an additional pole at zero to avoid steady-state errors.   
+\paragraph{Load disturbance rejection} 
+Evidently, for the regulation problem where the system is subjected to a load disturbance, the situation is different. In this case it is the output that needs to be $0$ as $t \to \infty$. As mentioned before already in \cref{sec:continuousdisturbance}, the transfer function from the disturbance to the output is
+$$ \frac{G(s)}{1 + G(s)K(s)} = \frac{1}{\frac{1}{G(s)} + K(s)}$$
+Using the Final Value Theorem:
+$$e_{ss} = \lim_{s\to 0} \frac{1}{\frac{1}{G(s)} + K(s)} = \frac{1}{\frac{1}{\lim_{s\to 0} G(s)} + \lim_{s \to 0}K(s)}$$
+This expression illustrates that the type of $G(s)$ is inconsequential:  the controller must have a pole at zero to ensure that $e_{ss} = 0$. This has also been explained in \cref{sec:continuousdisturbance}, and the results showed that integral action is indeed required.
+    
+\subsection*{State / output feedback controllers}
+When using state feedback, the poles of the system can be placed at arbitrary locations, given that the system is controllable (of course observability is a requirement for output feedback control). Conversely, the zeros are left unaffected by the control scheme; this has as a consequence that the steady-state gain of the system cannot be influenced directly. This issue can be solved in two ways; depending on the situation:
+\begin{itemize}
+    \item \textbf{Feedforward gain} in case of a servo problem, the exogenous signal is measurable. Therefore, the inverse of the closed-loop steady-state gain can be used as a feedforward gain to scale the reference signal; the net steady-state gain of the closed-loop system will then be unity. It is straightforward to show that the closed-loop steady-state gain of the system is:
+    $$ K_{ss} = C(I - (\Phi - \Gamma L))^{-1}\Gamma$$
+    The feedforward gain will then be $L_c = \frac{1}{K_{ss}}$. Unfortunately this method has two shortcomings; first of which is that the `exogenous' signal must be measurable --- this is of course not the case of disturbances. This method can therefore only be used for servo problems. Secondly, the closed-loop steady-state gain will only be exactly unity in theory; the model is of course only an approximation of the real system and environmental variations may play a role as well. Any deviation from the theoretical steady-state gain will cause a steady-state error to arise. Of course, if the model is very accurate this error may be acceptable. \cite{keviczky}
+    \item If the aforementioned disadvantages of the feedforward gain are decisive, and especially in case of a disturbance rejection scheme, one must resort to \textbf{integral action}. Two different methods are presented in this report. First, to reject constant disturbances, one has to include a disturbance observer in the controller; this has been succesfully demonstrated in \cref{sec:ss_output}. Another method is to put an integrator in an outer feedback loop (this is analogous to integral action of the PID controller). To achieve this, the plant is extended with an integral state that contains the integrated output of the actual plant. Then, full-information feedback is applied to this extended plant. The corresponding system is:
+        $$ \mqty(x(k+1)\\x_i(k+1)) = \mqty(\Phi & 0 \\ -C & 1)\mqty(x(k)\\xi(k)) + \mqty(\Gamma\\0)u(k)\quad\text{ with }u(k) = r - \mqty(L & L_i)\mqty(x(k)\\x_i(k))$$ 
+    Of course, the $Q$ matrix will have to be extended and retuned as well. A simulation of this system is shown in \cref{fig:q12_extlqr}; clearly the system is able to track a constant reference with zero steady-state error and reject a constant disturbance, in contrast to the standard LQR feedback scheme without feedforward.
+\end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[]{media/q12/extlqr.eps}
+    \caption{Bla bla specify matrices}
+    \label{fig:q12_extlqr}
+\end{figure}
