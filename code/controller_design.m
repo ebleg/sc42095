@@ -480,13 +480,13 @@ K_obs = ss([[Gdss.A; [0 0 0]] - K*Gdss.C, [Gdss.B; 1]], ... % A
 
 Hcl = lft(Gdss_ext, K_obs);
 
-figure('Name', 'Q6: Ouput-feedback reference tracking', 'NumberTitle', 'on')
+figure('Name', 'Q6: Ouput-feedback disturbance rejection', 'NumberTitle', 'on')
 tin = 0:h6:0.5;
 u = ones(size(tin));
 
 tile = tiledlayout(2, 1);
 nexttile
-[y, ~, x] = lsim(Hcl, u, tin, [0 0 0 0.2 0.2 0.2 0]);
+[y, ~, x] = lsim(Hcl, u, tin, [0 0 0 0 0 0 0]);
 stairs(tin, y);
 ylabel('Amplitude')
 
@@ -504,7 +504,7 @@ clearvars -except K1 K2 Gc s PIDDstruct N Gcss h6
 
 %% Question 7: LQR controllers
 h7 = h6*2;
-Gdss = canon(c2d(Gcss, h7, 'zoh'), 'canonical');
+Gdss = c2d(Gcss, h7, 'zoh');
 
 Rrange = [1 10];
 Q0 = Gdss.C'*Gdss.C;
@@ -529,18 +529,21 @@ title('\textbf{LQR weighting matrices comparison}');
 lgd = legend(lgdtxt, 'Location', 'southoutside', 'Orientation', 'Horizontal', ...
             'NumColumns', 3);
 ylabel('Amplitude')
-set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 1.5]);
+set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 1.3]);
 
 exportgraphics(gcf, '../tex/media/q7/lqr_comp.eps');
 
 % Plot final response properly
 figure;
-L = dlqr(Gdss.A, Gdss.B, Q0*1e4, 0.1);
+h8 = h6;
+Gdss = c2d(Gcss, h8, 'zoh');
+
+L = dlqr(Gdss.A, Gdss.B, Q0*1e4, 0.01);
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
-Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h6/1.5);
-specialstep(Hcl, 0:h6/1.5:0.2);
+Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h8);
+specialstep(Hcl, 0:h8:0.5);
 title('\textbf{LQR design response}'); ylabel('Amplitude');
-set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 0.8]);
+set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 0.7]);
 exportgraphics(gcf, '../tex/media/q7/lqr_final.eps');
 
 %% Functions

@@ -35,6 +35,7 @@ For the computed $\zeta$, an $\omega$ of \SI{20}{\radian\per\second} would yield
 The resulting poles were placed in the at $-17.5 + 9.7j, -26 + 0j$. A value of $h = \SI{0.0192}{\second}$ was chosen for the sampling period, based on the frequency of the third, faster pole and the rule \cite{astrom}
     $$ \omega h \approx 0.2-0.5 $$
 Because state feedback leaves the zeros and gain of the system unaffected, the magnitude of its DC-gain cannot be influenced arbitrarily. Therefore, to avoid steady-state errors, the feedforward gain $L_c$ was chosen as the inverse of the steady-state gain of the closed-loop system. This matter will be treated in greater detail in \cref{sec:q12}.
+The pole-placement controller design achieves a settling time of \SI{0.2115}{\second} with an overshoot of 0.85\%.
 
 Using the desired pole locations mapped to the $z$-plane, the feedback gain $L$ can be determined using the \textsc{Matlab}-command \texttt{place}. \Cref{fig:q5_step} shows the response of a collection of different pole locations; faster and slower, and with more or less damping. The response resulting from the discussed design process is also shown. The poles are listed in \cref{tab:polelocations} as well. \Cref{fig:q5_pzmap} shows all the corresponding pole and zero locations in the $z$-plane; clearly the zeros remain in place regardless of the pole-placement controller design.
 \begin{table}
@@ -76,7 +77,9 @@ Using the desired pole locations mapped to the $z$-plane, the feedback gain $L$ 
 
 \subsection{Output feedback using pole-placement \textnormal{\phantom{xxx}(Question 6)}}
 \label{sec:ss_output}
-Now, it will no longer be assumed that all the states are known, but that the controller has access to the system output only. To apply state feedback, the controller must include an observer that provides an estimate of the current state.
+Now, it will no longer be assumed that all the states are known, but that the controller has access to the system output only. To apply state feedback, the controller must include an observer that provides an estimate of the current state. A condition for the observer to provide an estimate of all the states is that the pair $(\Phi, C)$ is observable, which can be checked by inspection of the observability matrix:
+$$ W_o = \mqty(C\\C\Phi\\\vdots\\C\Phi^{n-1})$$
+which must have rank $n$ for observability. Computations in \textsc{Matlab} showed that this indeed true.
 
 \subsubsection{Servo problem}
 First, a controller configuration will be presented for a servo case; with the purpose to track a reference step according to the previously set requirements. \Cref{fig:q6_block_servo} shows how the plant and the controller are connected. To do so, the \textsc{Matlab} command \texttt{lft} (linear fractional transformation) was used.
@@ -149,11 +152,11 @@ From \cref{fig:q6_block_distrej}, the state-space models of the plant and contro
     \end{aligned}
 \end{equation}
 The choice of $K_w$ entails the placement of an additional observer pole; the value of $K_w$ can be computed together with the state observer gain $K$ using the \textsc{Matlab} command \texttt{place} for the augmented controller system (that is, the combined model of the plant and the disturbance). This pole was placed at $s = -21$ or $z = 0.8741$, which is slower than the state observer poles; it turned out to be desirable to let them settle first before the disturbance estimate. The other observer and controller poles were kept at the same locations since they showed adequate performance. The sampling time is also the same as for the servo controller given that the fastest dynamics are identical.
-\Cref{fig:q6_output_distrej} displays two plots; the top one is the reaction of the output to the step disturbance, the bottom plot is the estimate of the disturbance (which should of course converge to 1). The state estimates were initialized at $\hat{x}_0 = \mqty(0.2 & 0.2 & 0.2)$, the initial disturbance estimate was $\hat{v}_0 = 0$.
+\Cref{fig:q6_output_distrej} displays two plots; the top one is the reaction of the output to the step disturbance, the bottom plot is the estimate of the disturbance (which should of course converge to 1). The state estimates were initialized at $\hat{x}_0 = \mqty(0 & 0 & 0)$ to isolate the reaction to the disturbance (simulation shows that the reaction to initial state errors is a lot more violent), the initial disturbance estimate was $\hat{v}_0 = 0$. Clearly, the controller does a good job rejecting the disturbance, both in terms of settling time and peak value.
 \begin{figure}[ht!]
     \centering
     \includegraphics[scale=1]{media/q6/output_distrej.eps}
-    \caption{Disturbance rejection by the output feedback controller with disturbance observer. The largest deviation of the output are due to the initial error in the state estimation. After the state estimate error becomes reasonable, the disturbance estimate starts to converge to 1. Due to the large initial response, this final value is not clearly visible on the figure.}
+    \caption{Disturbance rejection by the output feedback controller with disturbance observer. The disturbance estimate converges to 1 relatively quickly without overshoot; the settling time is \SI{0.29}{\second} with a peak value of 0.0013.}
     \label{fig:q6_output_distrej}
 \end{figure}
 \FloatBarrier
@@ -173,12 +176,20 @@ Scalar multiples of $Q_0$ can then be chosen to put a greater (or perhaps smalle
 \begin{figure}
     \centering
     \includegraphics[scale=1]{media/q7/lqr_comp.eps}
-    \caption{Step response for various combinations of $Q$ and $R$. ($h = \SI0.0128}{\second}$)}
+    \caption{Step response for various combinations of $Q$ and $R$. ($h = \SI{0.0128}{\second}$)}
     \label{fig:q7_lqr_comp}
 \end{figure}
+After the tuning process, the final LQR was based on the matrices:
+\sisetup{scientific-notation=engineering}
+$$ Q = \mqty(0 & 0 & 0\\
+             0 & \num{1e4} & -\num{4e4}\\
+             0 & -\num{4e4} & \num{16e4}) = 10^4\times Q_0 \qquad R = 0.01$$
+which resulted in a settling time of $T_s = \SI{0.2051}{\second}$ and an overshoot of 4.36\%. The corresponding response is shown in \cref{fig:q7_lqr_final}. The sampling period was reduced based on the time response of the controller to $h = \SI{0.0064}{\second}$. The closed-loop discrete-time poles (in the $z$-plane) are:
+        $$0.8582 \pm 0.1285j\quad0.8827$$
+For this controller design, a feedforward gain $L_c = 880.4$ was used to rule out steady-state errors. 
 \begin{figure}
     \centering
     \includegraphics{media/q7/lqr_final.eps}
-    \caption{}
-
+    \caption{Step response of the final LQR design. ($h = \SI{0.0064}{\second}$)}
+    \label{fig:q7_lqr_final}
 \end{figure}

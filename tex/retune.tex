@@ -1,4 +1,5 @@
-[Iets over sampling time]
+The previously designed controllers were all primarily designed for speed and a properly damped response. One very important practical aspect has been ignored: the control effort dictated by the controller. To keep the design realistic, the control effort should be within the limits of the actuators. This issue will be addressed in this section.
+
 \subsection{Controller effort computation \textnormal{\phantom{xxx}(Question 8)}}
 In this section the control effort associated with the controllers designed in \cref{sec:continuoustracking,sec:continuousdisturbance,sec:ss_full,sec:ss_output,sec:ss_lqr} will be computed. The reason behind this analysis is that the actuators are known to saturate at $u = \pm20$. The controllers were predominantly designed with speed as a main priority, they will likely violate this constraint. This is why in \cref{sec:retunepid,sec:retunepolep,sec:retunelqr} the controller designs will be revisited to address this new restriction.
 
@@ -11,7 +12,8 @@ which is, by definition, the complementary sensitivity transfer function of the 
 
 For the state-space methods, the output matrix of the controller will be `doubled' (i.e. the same output twice); this way the \texttt{lft} command will leave the second output as an output for the closed-loop system while the first is connected to the generalized plant. The full-information controller an even simpler approach could be taken since the control input is based on the actual states instead of observed ones, so the feedback gain $-L$ is stacked under the output matrix $C$ to obtain the second output.
 
-\Crefrange{fig:q8_pdd}{fig:q8_lqr} show the step response and the associated control effort (measured on the right axis). All the tracking controllers violate the bounds; especially the PDD controller induces very high inputs.
+\Crefrange{fig:q8_pdd}{fig:q8_lqr} show the step response and the associated control effort (measured on the right axis). All the tracking controllers violate the bounds; especially the PDD controller induces very high inputs. The output feedback controller for disturbance rejection violates the bounds as well, though this is primarily due to the initial state estimation errors than the controller trying to reject the disturbance. 
+
 On the other hand, the control action for the disturbance rejection controllers is very small. This is to be expected, given that the magnitude of the complementary sensitivity transfer function (which determines the relation between the load disturbance and controller effort) is usually only larger than 1 in a small frequency band; at these frequencies the open-loop system outperforms its closed-loop counterpart. Hence, unless $\abs{T}$ has a very large peak at some frequency (this would arguably indicate a bad controller design and poor stability margins), most of the lower frequencies will be damped. For example, the PIDD disturbance rejection controller has a complementary sensitivity with peak value 1.37 at a frequency of \SI{281}{\radian\per\second}. Combined with the Fourier transform of the step input it is clear that none of the input frequencies will be amplified to a magnitude that is much greater than 1.
 \begin{figure}[ht!]
     \centering
@@ -116,7 +118,7 @@ Using the \textsc{Matlab}-command \texttt{dlqr}, the resulting gain matrix turne
 \end{figure}
 
 \clearpage
-\section{Steady-state errors\textnormal{\phantom{xxx}(Question 12)}}
+\section{Steady-state errors \textnormal{\phantom{xxx}(Question 12)}}
 \label{sec:q12}
 In this section several methods will be presented to eliminate steady-state errors for both disturbance rejection as tracking schemes; most of which have already been applied in the controllers discussed in previous sections. \cite{nise}
 \subsection*{PID controllers}

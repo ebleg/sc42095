@@ -14,7 +14,7 @@ Gcss = canon(ss(Gc), 'companion');
 %% Reference tracking PDD
 load 'controllers/K1'
 load 'controllers/PIDstruct'
-h = K1.it6.Td2*0.7/10;
+h = 0.0014;
 K = c2d(K1.it6.tf, h, 'tustin');
 Gd = c2d(Gc, h, 'zoh');
 sys = [feedback(K*Gd, 1); feedback(K, Gd)];
@@ -48,9 +48,9 @@ exportgraphics(gcf, '../tex/media/q8/pd.eps');
 
 %% Disturbance rejection PIDD
 load 'controllers/K2'
-h = 15*K2.it5.Td1*0.2/10;
+h = 0.0012;
 K = c2d(K2.it5.tf, h, 'tustin');
-Gd = c2d(Gc, h, 'tustin');
+Gd = c2d(Gc, h, 'zoh');
 sys = [feedback(Gd, K); -feedback(K*Gd, 1)];
 
 figure; hold on;
@@ -61,17 +61,19 @@ sim_with_input([feedback(Gc, K2.it5.tf); -feedback(Gc*K2.it5.tf, 1)], ...
 legend({'DT system output', 'CT system output', 'DT controller effort',  ...
    'CT controller effort'}, 'location', 'best');
 title('\textbf{PIDD controller (disturbance rejection)}')
+ylim([-1.5 0]);
 exportgraphics(gcf, '../tex/media/q8/pidd.eps');
 
 %% Pole placement controller: full state
 OS_max = 1;
-zeta_target = -log(OS_max/100)/sqrt(pi^2 + log(OS_max/100)^2);
-w = 20; 
+zeta_target = -log(OS_max/100)/sqrt(pi^2 + log(OS_max/100)^2)*1.06;
+w = 20;
+
 h = 0.5/1.3/w;
+Gdss = c2d(Gcss, h, 'zoh');
 
 target_pole = complex(-zeta_target*w, sqrt(1 - zeta_target)*w);
 
-Gdss = canon(c2d(Gcss, h, 'zoh'), 'canonical');
 
 L = place(Gdss.A, Gdss.B, exp(h*[target_pole, conj(target_pole), -1.3*w]));
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
@@ -85,9 +87,12 @@ exportgraphics(gcf, '../tex/media/q8/fullstate.eps');
 % 
 
 %% Output controller: servo
+h = 0.5/1.3/w/3;
+Gdss = c2d(Gcss, h, 'zoh');
+
 poles_fb = [target_pole, conj(target_pole), -1.3*w];
 L = place(Gdss.A, Gdss.B, exp(h*poles_fb));
-K = place(Gdss.A', Gdss.C', exp(h*poles_fb.*1.3))';
+K = place(Gdss.A', Gdss.C', exp(h*poles_fb.*3))';
 
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 
@@ -110,8 +115,8 @@ K_obs = ss(Gdss.A - K*Gdss.C, ... % A
 sys = lft(Gdss_ext, K_obs, 1, 3);
 
 figure; hold on;
-tin = 0:h:1;
-sim_with_input(sys, tin, [0 0 0 -2 3 5]*10);
+tin = 0:h:0.5;
+sim_with_input(sys, tin, [0 0 0 0.2 0.2 0.2]);
 title('\textbf{Output feedback controller (servo)}')
 exportgraphics(gcf, '../tex/media/q8/outputservo.eps');
 
@@ -119,7 +124,7 @@ exportgraphics(gcf, '../tex/media/q8/outputservo.eps');
 % poles_fb = [-8 -12.01 -12];
 L = place(Gdss.A, Gdss.B, exp(h*poles_fb));
 K = place([Gdss.A Gdss.B; [0 0 0 1]]', [Gdss.C 0]', ...
-                                     exp(h*[poles_fb, -7]*2))';
+                                     exp(h*[poles_fb, -7]*3))';
 % Extended system
 % IN: [d u] OUT: [y u u y];
 Gdss_ext = ss(Gdss.A, ...
@@ -138,14 +143,15 @@ K_obs = ss([[Gdss.A; [0 0 0]] - K*Gdss.C, [Gdss.B; 1]], ... % A
 sys = lft(Gdss_ext, K_obs, 1, 2);
 
 figure; hold on;
-tin = 0:h:0.8;
-sim_with_input(sys, tin, [0 0 0 1 3 5 -1]);
+tin = 0:h:0.5;
+sim_with_input(sys, tin, [0 0 0 0 0 0 0]);
 title('\textbf{Output feedback controller (disturbance rejection)}')
 exportgraphics(gcf, '../tex/media/q8/outputdistrej.eps');
 
 %% LQR Controller
-R = 1; Q = Gdss.C'*Gdss.C*5e4;
-[L, ~, lqr_poles]= dlqr(Gdss.A, Gdss.B, Q, R);
+h = 0.0064;
+Gdss = c2d(Gcss, h, 'zoh');
+L = dlqr(Gdss.A, Gdss.B, Gdss.C'*Gdss.C*1e4, 0.1);
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], [Gdss.D; Lc], h);
 
