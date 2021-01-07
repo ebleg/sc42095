@@ -17,19 +17,19 @@ h = 0.05;
 Gd = canon(c2d(Gcss, h, 'zoh'), 'companion');
 
 %% PD redesign
-K_PD_v2 = K1.it5;
-K_PD_v2.Kp = 20/(K_PD_v2.N + 1);
+K1_v2 = K1.it5;
+K1_v2.Kp = 20/(K1_v2.N + 1);
 % K_PD_v2.Td1 = 20*K_PD_v2.Td1;
 % K_PD_v2.Ti = 2;
-K_PD_v2.Kp = 20;
-K_PD_v2.Td1 = 0;
+K1_v2.Kp = 20;
+K1_v2.Td1 = 0;
 
-K_PD_v2 = build_PIDD(K_PD_v2);
+K1_v2 = build_PIDD(K1_v2);
 
 figure
-sim_with_input([feedback(K_PD_v2.Kp*Gd, 1); feedback(K_PD_v2.Kp, Gd)], ...
+sim_with_input([feedback(K1_v2.Kp*Gd, 1); feedback(K1_v2.Kp, Gd)], ...
                 0:h:1.2);
-sim_with_input([feedback(K_PD_v2.tf*Gc, 1); feedback(K_PD_v2.tf, Gc)], ...
+sim_with_input([feedback(K1_v2.tf*Gc, 1); feedback(K1_v2.tf, Gc)], ...
                 linspace(0, 1, 5e2));
 legend({'DT system output', 'CT system output', 'CT controller effort',  ...
         'DT controller effort'}, 'location', 'best');

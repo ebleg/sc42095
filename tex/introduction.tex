@@ -5,7 +5,6 @@ In this report, an orientation controller will be designed for a space station. 
 The structure of the report is the following. \Cref{sec:continuous} treat the design of continuous-time PID controllers, respectively for reference tracking (servo problem) and load disturbance rejection (regulation problem). Subsequently, the controller designs and the plant are discretised in \cref{sec:discretise}. 
 
 In \cref{sec:ss}, the controller design is approached from a state-space perspective; more specifically using pole-placement and the LQR method.
-
 For all these controllers, the main priorities are zero steady-state error and minimal settling time within a set overshoot limit. The resulting controller designs are therefore very aggressive (and not entirely realistic). This issue is be addressed in \cref{sec:retune}; the control effort associated with the controller designs is first determined. It is given that the actuators will saturate at an input of $\pm20$, the controller that violate this bound are subsequently retuned to remain within these bounds.
 
 \Cref{sec:q12} formalises the methods used to eliminate steady-state errors; as several have been used for the various controller designs. 

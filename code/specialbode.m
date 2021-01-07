@@ -56,7 +56,7 @@ function [mag, phase, wout, tile] = specialbode(sys, varargin)
 
     semilogx(wout, 20*log10(squeeze(mag)));
     hold on;
-    ylabel('Magnitude (dB)', 'FontSize', 10);
+    ylabel('Magnitude (dB)');
 
     % Determine maximum distance in data
     spread = max(20*log10(mag)) - min(20*log10(mag));

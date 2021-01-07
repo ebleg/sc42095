@@ -33,8 +33,8 @@ function ax = sim_with_input(sys, tin, x0)
     ylabel('Controller effort')
     xlabel('Time (s)');
     [~, max_input_idx] = max(abs(y(:,2))); hold on;
-    scatter(tin(max_input_idx), y(max_input_idx, 2), 50, 's', 'filled', ...
-                'handlevisibility', 'off');
+%     scatter(tin(max_input_idx), y(max_input_idx, 2), 50, 's', 'filled', ...
+%                 'handlevisibility', 'off');
     subtitle(sprintf('$u_\\mathrm{max}$ = %.4g', y(max_input_idx, 2)));
     legend('System output', 'Controller effort', 'Location', 'best')
 end

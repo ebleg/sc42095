@@ -20,7 +20,7 @@ According to the pole-placement theorem, all the poles of the system can be move
 $$ W_c = \mqty(\Gamma & \Phi \Gamma & \cdots & \Phi^{n-1}\Gamma)$$
 The system is reachable if and only if $\mathrm{rank}(W_c) = n$ ($n$ is the number of states), which is indeed the case for this system. As such, one can move all the poles to arbitrary locations using state-feedback.
 
-\paragraph{Selection of the pole locations} Obviously, the selection of the closed-loop poles will be of major influence on the behaviour of the system. Therefore, it is important to choose them wisely. For the controller design, these locations where picked in the $s$-plane for continous-time systems, after which they are mapped to the $z$-plane for discrete-time systems using the relation:
+\paragraph{Selection of the pole locations} Obviously, the selection of the closed-loop poles will be of major influence on the behaviour of the system. Therefore, it is paramount to choose them wisely. For the controller design, these locations where picked in the $s$-plane for continous-time systems, after which they are mapped to the $z$-plane for discrete-time systems using the relation:
 \begin{equation}
     p_z = \exp(hp_s) 
     \label{eq:polemapping}
@@ -32,13 +32,13 @@ The general idea is to choose a dominant pole pair that will induce a second-ord
 Using \cref{eq:overshoot,eq:damping}, the desired damping ratio can be computed based on the overshoot requirement. From the tuning of the PID controllers in \cref{sec:continuoustracking,sec:continuousdisturbance} it is already known that the maximum imposed overshoot limit is not desired for minimum settling time; rather, the overshoot should be limited to 1\% to keep the system immediately inside the `settling band' of $\pm 1\%$. Using these relations, one can find that the desired $\zeta = 0.83$. To have minimal settling time, $\omega$ should be as large as possible. However, this will also directly influence the distance over which the poles have to be moved and therefore the required control action. The settling time can, for second-order systems, be related to $\zeta$ and $\omega$ with the following expression (for continuous-time systems): \cite{nise}
 $$ T_s = -\frac{\ln(0.01\times\sqrt{1 - \zeta^2})}{\zeta\omega}$$
 For the computed $\zeta$, an $\omega$ of \SI{25}{\radian\per\second} would yield a settling time of \SI{0.25}{\second}, comparable to the PD controller from \cref{sec:continuoustracking}. The remaining pole was placed at 30\% larger from the origin (because this is only a single pole, it must necessarily be on the real axis).
-Hence, the resulting poles were placed in the at $-16.5 \pm 8.3j, -26 + 0j$. A value of $h = \SI{0.0192}{\second}$ was chosen for the sampling period, based on the time constant of the fastest pole.
-
+Hence, the resulting poles were placed in the at $-16.5 \pm 8.3j, -26 + 0j$. A value of $h = \SI{0.0192}{\second}$ was chosen for the sampling period, based on the frequency of the third, faster pole and the rule \cite{astrom}
+    $$ \omega h \approx 0.2-0.5 $$
 Because state feedback leaves the zeros and gain of the system unaffected, the magnitude of its DC-gain cannot be influenced arbitrarily. Therefore, to avoid steady-state errors, the feedforward gain $L_c$ was chosen as the inverse of the steady-state gain of the closed-loop system. This will be treated in greater detail in \cref{sec:q12}.
 \begin{figure}[ht]
     \centering
     \includegraphics{media/q5/dt_step.eps}
-    \caption{}
+    \caption{$h = \SI{0.0192}{\second}$}
     \label{fig:q5_step}
 \end{figure}
 Using the desired pole locations mapped to the $z$-plane, the feedback gain $L$ can be determined using the \textsc{Matlab}-command \texttt{place}. \Cref{fig:q5_step} also shows the response from some other pole locations; faster and slower, and with more or less damping. The response resulting from the discussed design process is also shown. \Cref{fig:cont_plant_pzmap} shows all the corresponding pole and zero locations in the $z$-plane; clearly the zeros remain in place regardless of the pole-placement controller design.

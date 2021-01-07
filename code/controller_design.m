@@ -118,13 +118,13 @@ lgdtxt = {'\#2 P', '\#3 D-action', '\#4 D-action + target PM', ...
 % Export graphics
 figure(nfig_q1_steps);
 legend(lgdtxt, 'Location', 'southeast');
-exportgraphics(gcf, '../tex/media/q1/pd_controllers_step.eps');
+% exportgraphics(gcf, '../tex/media/q1/pd_controllers_step.eps');
 
 figure(nfig_q1_bode);
 lgd = legend(lgdtxt, 'Orientation', 'Horizontal', 'NumColumns', 3);
 lgd.Layout.Tile = 'north';
 set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 1.3])
-exportgraphics(gcf, '../tex/media/q1/pd_controllers_bode.eps')
+% exportgraphics(gcf, '../tex/media/q1/pd_controllers_bode.eps')
 
 fprintf('Final controller:\n');
 zpk(K1.it6.tf)
@@ -204,9 +204,8 @@ figure(nfig_q2_steps);
 ylabel('Amplitude');
 title('\textbf{Disturbance step}')
 subtitle('Comparison between different values for the PM');
-set(gca, 'Position', get(gca, 'Position').*[1.2 1 1 0.9]);
 legend(lgdtxt);
-exportgraphics(gcf, '../tex/media/q2/pi_pm_comparison.eps');
+% exportgraphics(gcf, '../tex/media/q2/pi_pm_comparison.eps');
 
 figure; hold on; % Bode
 nfig_q2_steps2 = gcf().Number;
@@ -272,7 +271,7 @@ S = ctrb(Gcss.A', Gcss.C')*Talpha;
 % disp('B'); disp((Gcss.B'*S)');
 % disp('C'); disp((S\Gcss.C')');
 [~, ~, ~, wc] = margin(Gc);
-h3 = 0.15/wc;
+h3 = 1/12/5;
 % h3 = 0.4/max(abs(pole(Gc))); % Based on w0 of the fastest pole
 Gdss = canon(c2d(Gcss, h3, 'zoh'), 'modal');
 % Check whether the sampling time makes sense
@@ -285,6 +284,16 @@ disp('B'); disp(Gdss.B);
 disp('C'); disp(Gdss.C);
 format short
 
+figure; set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 0.8]);
+[y1, t1] = impulse(Gc);
+[y2, t2] = impulse(Gdss, 0:h3:max(t1));
+plot(t1, y1); hold on;
+stairs(t2, y2);
+xlim([0 max(t2)]);
+legend({'Continuous system', 'Discrete system'}, 'Location', 'best');
+title('\textbf{Impulse response}'); xlabel('Time (s)'); ylabel('Amplitude');
+% exportgraphics(gcf, '../tex/media/q3/dt_plant_impulse.eps');
+
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
 %% Question 4: Discretize the controllers
@@ -294,7 +303,7 @@ clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 % h4_distrej = 1.1/wc;
 % h4_distrej = 0.6/max(abs(pole(K2.it5.tf*Gc)));
 h4_tracking = K1.it6.Td2*0.7/10;
-h4_distrej = K2.it5.Td1*0.2/10;
+h4_distrej = K2.it5.Td1*0.7/10;
 
 figure('Name', 'Q4: DT Reference tracking controller', 'NumberTitle', 'on')
 K_tracking = c2d(K1.it6.tf, h4_tracking, 'tustin');
@@ -311,18 +320,18 @@ K_distrej = c2d(K2.it5.tf, h4_distrej, 'tustin');
 Gd_distrej = c2d(Gc, h4_distrej, 'zoh');
 [~, tin] = specialstep(feedback(Gd_distrej, K_distrej)); hold on;
 
-K_distrej2 = c2d(K2.it5.tf, 15*h4_distrej, 'tustin');
-Gd_distrej2 = c2d(Gc, 15*h4_distrej, 'tustin');
+K_distrej2 = c2d(K2.it5.tf, 10*h4_distrej, 'tustin');
+Gd_distrej2 = c2d(Gc, 10*h4_distrej, 'tustin');
 specialstep(feedback(Gd_distrej2, K_distrej2), ...
-                1:15*h4_distrej:max(tin)); hold on;
+                1:10*h4_distrej:max(tin)); hold on;
 
 specialstep(feedback(Gc, K2.it5.tf), linspace(0, max(tin)));
 
 ax2 = copyobj(gca, gcf);
-set(ax2, 'Position', [0.5, 0.25, 0.4, 0.4]);
+set(ax2, 'Position', [0.47, 0.28, 0.4, 0.4]);
 xlabel(ax2, '');
-set(ax2, 'XLim', [6e-3 18e-3]);
-set(ax2, 'YLim', [2e-5 3.4e-5]);
+set(ax2, 'XLim', [3e-3 16e-3]);
+set(ax2, 'YLim', [1e-5 2e-5]);
 set(ax2, 'XTickLabel', {});
 set(ax2, 'YTickLabel', {});
 
@@ -330,11 +339,11 @@ title('\textbf{Disturbance-rejection controllers}')
 legend('Discretised (ZOH)', 'Discretised (Tustin)', 'Continuous')
 exportgraphics(gcf, '../tex/media/q4/dt_distrej.eps');
 
-figure
-hold on;
-specialbode(feedback(Gd_distrej, K_distrej));
-specialbode(feedback(Gd_distrej2, K_distrej2));
-specialbode(feedback(Gc, K2.it5.tf));
+% figure
+% hold on;
+% specialbode(feedback(Gd_distrej, K_distrej));
+% specialbode(feedback(Gd_distrej2, K_distrej2));
+% specialbode(feedback(Gc, K2.it5.tf));
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
@@ -349,7 +358,7 @@ poles_cont = [-10, -1+4j, -1-4j; % Complex pole pair
               target_pole, conj(target_pole), -1.3*w]; % Pure damping
 h5 = 0.5/1.3/w;
 poles_disc = exp(poles_cont*h5);
-poles_disc = [poles_disc; [0.001 0.0015 0.002]]; % Deadbeat
+poles_disc = [poles_disc; [0 0.001 0.002]]; % Deadbeat
 
 Gdss = canon(c2d(Gcss, h5, 'zoh'), 'canonical');
 %  
@@ -521,9 +530,3 @@ exportgraphics(gcf, '../tex/media/q7/lqr_comp.eps');
 
 
 %% Functions
-function Td = place_lead(w, N)
-    % Compute Td to place the maximum phase contribution of the lead
-    % compensator at w (N determines the second corner frequency of the
-    % compensator.
-    Td = N/w/sqrt(N + 1);
-end

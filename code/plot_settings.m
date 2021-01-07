@@ -37,7 +37,7 @@ set(groot, 'defaultFigureColor', [1 1 1]);
 
 % Position & size
 set(groot, 'defaultFigurePosition', [10 10 12 8]);
-set(groot, 'defaultAxesPosition', [0.1, 0.13, 0.85, 0.77]);
+% set(groot, 'defaultAxesPosition', [0.1, 0.13, 0.85, 0.77]);
 
 set(groot, 'defaultTiledLayoutTileSpacing', 'compact')
 set(groot, 'defaultTiledLayoutPadding', 'compact')

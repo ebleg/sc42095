@@ -1,0 +1,53 @@
+In this section, the various controller designs will be tested against the presence of a time delay (of one sampling period) in the plant. Time delays have a destabilising effect on systems; they leave the magnitude frequency response intact but subtract a linearly declining phase from the phase response, effectively lowering the phase margin (and potentially the gain margin as well). Therefore, one can expect that the amount of damping of the previously designed controllers will be less, with more overshoot, undesired oscillations and generally a longer settling time as a result. Therefore, the controllers will be adjusted once again for this additional complication. \cite{nise}
+
+In contrast to the continuous-time case, the inclusion of time delays in discrete-time systems is straightforward; especially when the time delay happens to be a multiple of the sampling frequency. For a single input delay on a pulse transfer function, one can simply multiply the entire expression with $z^{-1}$:
+                         $$ G_\text{delay}(z) = z^{-1}G(z) $$
+For a state-space model, one applies a `shift-register' augmentation of the system with one extra state (for a time delay of $h$):
+                    $$ \mqty(x(k+1)\\u(k)) = \mqty(\Phi & \Gamma\\0&0)\mqty(x(k)\\u(k-1)) + \mqty(0\\1)u(k)$$ 
+where $\Phi$ and $\Gamma$ denote the state-space matrices of the original system.
+
+\subsection{P-controller for reference tracking}
+\Cref{fig:q13_p_delay} shows the effect of the time delay of one sampling period on the controller design. As one might expected, the time delay results in less damping of the response; the overshoot has increased with a longer settling time as a result. However, it turned out that D-action is still not beneficial; the extra control action involved thus not outweight the benefits (arguably one could use a lead compensator with the pole and zero very close to each other, but even this resulted in no considerable improvement with respect to the extra complexity). Therefore, the controller gain was reduced make the response less violent, until again the desired goal of $1\%$ overshoot was obtained. The resulting response and controller effort are shown in \cref{fig:q13_pd_redesign}.
+\begin{figure}[ht]
+    \centering
+    \includegraphics{media/q13/p_delay.eps}
+    \caption{}
+    \label{fig:q13_p_delay}
+\end{figure}
+\begin{figure}[ht]
+    \centering
+    \includegraphics{media/q13/pd_redesign.eps}
+    \caption{}
+    \label{fig:q13_pd_redesign}
+\end{figure}
+\FloatBarrier
+
+\subsection{Full-information controller}
+Secondly, the controllers designed \cref{sec:ss,sec:retunepolep} are revisited to address the time delay. The effect of the time delay on the controllers from \cref{sec:retunepolep} --- more precisely the full-information controller and output feedback disturbance rejection controller --- are shown in \cref{fig:q13_full_info_delay,fig:q13_out_distrej_delay} respectively. Again, one can make a similar observation to \cref{fig:q13_p_delay}: the response is slightly more oscillatory when compared to the old response. To adjust the controllers for this, the
+\begin{figure}[ht]
+    \centering
+    \includegraphics{media/q13/full_info_delay.eps}
+    \caption{}
+    \label{fig:q13_full_info_delay}
+\end{figure}
+\begin{figure}[ht]
+    \centering
+    \includegraphics{media/q13/out_distrej_delay.eps}
+    \caption{}
+    \label{fig:q13_out_distrej_delay}
+\end{figure}
+\begin{figure}[ht]
+    \centering
+    \includegraphics{media/q13/full_info_redesign.eps}
+    \caption{}
+    \label{fig:q13_full_info_redesign}
+\end{figure}
+\begin{figure}[ht]
+    \centering
+    \includegraphics{media/q13/out_distrej_redesign.eps}
+    \caption{}
+    \label{fig:q13_out_distrej_redesign}
+\end{figure}
+
+\FloatBarrier
+\subsection{LQR-controller}
