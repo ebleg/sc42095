@@ -293,3 +293,6 @@ TSWLatexianTemp*
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
+tex/.vscode/ltex.dictionary.en-GB.txt
+tex/.vscode/ltex.hiddenFalsePositives.en-GB.txt
+tex/.vscode/ltex.dictionary.en-US.txt

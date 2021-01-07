@@ -1,15 +1,15 @@
 In this section, the controller design will be approached from a state-space perspective. First, a full-information state feedback controller will be designed for a servo problem in \cref{sec:ss_full}. Then, the assumption of full-information will be dropped; an observer will also be designed using pole-placement to provide the state information; this is discussed in \cref{sec:ss_output}. Finally, a linear quadratic regulator (LQR) solution is developed in \cref{sec:ss_lqr}.
 
-\subsection{Full-information feedback using pole-placement\textnormal{\phantom{xxx}(Question 5)}}
+\subsection{Full-information feedback using pole-placement \textnormal{\phantom{xxx}(Question 5)}}
 \label{sec:ss_full}
-In order to apply full-information feedback, information about all the states must be available. Using a feedback law $u = -Lx$ where $L$ is a vector to be designed to obtain the desired closed-loop behaviour. \Cref{fig:q5_block_statefeedback} visualises the process of state feedback in a block diagram for a servo problem. Please note that a feedforward gain $L_c$ is included as well which acts on the reference signal $r$; its purpose is to adjust the DC gain of the system to remove the steady-state error --- this matter will be discussed as well.
+In order to apply full-information feedback, information about all the states must be available. Using a feedback law $u = -Lx$ where $L$ is a vector to be designed to obtain the desired closed-loop behaviour. \Cref{fig:q5_block_statefeedback} visualizes the process of state feedback in a block diagram for a servo problem. Please note that a feedforward gain $L_c$ is included as well which acts on the reference signal $r$; its purpose is to adjust the DC gain of the system to remove the steady-state error --- this matter will be discussed as well.
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=1.1]{media/q5/block_statefeedback-01.eps}
     \caption{}
     \label{fig:q5_block_statefeedback}
 \end{figure}
-The closed-loop state-space system in \cref{fig:q5_block_statefeedback}  (the feedthrough $D$ is assumed to be absent):
+The closed-loop state-space system in \cref{fig:q5_block_statefeedback}  (the feed through $D$ is assumed to be absent):
 \begin{equation}
     \begin{aligned}
         x(k+1) &= \qty(\Phi - \Gamma L)x(k) + \Gamma L_c r(k)\\
@@ -20,9 +20,9 @@ According to the pole-placement theorem, all the poles of the system can be move
 $$ W_c = \mqty(\Gamma & \Phi \Gamma & \cdots & \Phi^{n-1}\Gamma)$$
 The system is reachable if and only if $\mathrm{rank}(W_c) = n$ ($n$ is the number of states), which is indeed the case for this system. As such, one can move all the poles to arbitrary locations using state-feedback.
 
-\paragraph{Selection of the pole locations} Obviously, the selection of the closed-loop poles will be of major influence on the behaviour of the system. Therefore, it is paramount to choose them wisely. For the controller design, these locations where picked in the $s$-plane for continous-time systems, after which they are mapped to the $z$-plane for discrete-time systems using the relation:
+\paragraph{Selection of the pole locations} Obviously, the selection of the closed-loop poles will be of major influence on the behaviour of the system. Therefore, it is paramount to choose them wisely. For the controller design, these locations where picked in the $s$-plane for continuous-time systems, after which they are mapped to the $z$-plane for discrete-time systems using the relation:
 \begin{equation}
-    p_z = \exp(hp_s) 
+    p_z = \exp(h p_s) 
     \label{eq:polemapping}
 \end{equation}
 where $h$ is the sampling period, $p_z$ the pole location in the $z$-plane and $p_s$ the pole location in the $s$-plane. In the $s$-plane, the characteristics of the poles are very straightforward to compute:
@@ -31,35 +31,64 @@ The general idea is to choose a dominant pole pair that will induce a second-ord
 \sisetup{scientific-notation=false}
 Using \cref{eq:overshoot,eq:damping}, the desired damping ratio can be computed based on the overshoot requirement. From the tuning of the PID controllers in \cref{sec:continuoustracking,sec:continuousdisturbance} it is already known that the maximum imposed overshoot limit is not desired for minimum settling time; rather, the overshoot should be limited to 1\% to keep the system immediately inside the `settling band' of $\pm 1\%$. Using these relations, one can find that the desired $\zeta = 0.83$. To have minimal settling time, $\omega$ should be as large as possible. However, this will also directly influence the distance over which the poles have to be moved and therefore the required control action. The settling time can, for second-order systems, be related to $\zeta$ and $\omega$ with the following expression (for continuous-time systems): \cite{nise}
 $$ T_s = -\frac{\ln(0.01\times\sqrt{1 - \zeta^2})}{\zeta\omega}$$
-For the computed $\zeta$, an $\omega$ of \SI{25}{\radian\per\second} would yield a settling time of \SI{0.25}{\second}, comparable to the PD controller from \cref{sec:continuoustracking}. The remaining pole was placed at 30\% larger from the origin (because this is only a single pole, it must necessarily be on the real axis).
-Hence, the resulting poles were placed in the at $-16.5 \pm 8.3j, -26 + 0j$. A value of $h = \SI{0.0192}{\second}$ was chosen for the sampling period, based on the frequency of the third, faster pole and the rule \cite{astrom}
+For the computed $\zeta$, an $\omega$ of \SI{20}{\radian\per\second} would yield a settling time of \SI{0.31}{\second}, comparable to the PD controller from \cref{sec:continuoustracking}. The remaining pole was placed 30\% further from the origin (because this is only a single pole, it must necessarily be on the real axis). After some iterations the damping ratio was slightly increased to $\zeta = 0.88$ to cope with the extra overshoot due to the discretization (reduces the phase margin) and the mismatch between the actual system and the second-order approximation.
+The resulting poles were placed in the at $-17.5 + 9.7j, -26 + 0j$. A value of $h = \SI{0.0192}{\second}$ was chosen for the sampling period, based on the frequency of the third, faster pole and the rule \cite{astrom}
     $$ \omega h \approx 0.2-0.5 $$
-Because state feedback leaves the zeros and gain of the system unaffected, the magnitude of its DC-gain cannot be influenced arbitrarily. Therefore, to avoid steady-state errors, the feedforward gain $L_c$ was chosen as the inverse of the steady-state gain of the closed-loop system. This will be treated in greater detail in \cref{sec:q12}.
-\begin{figure}[ht]
+Because state feedback leaves the zeros and gain of the system unaffected, the magnitude of its DC-gain cannot be influenced arbitrarily. Therefore, to avoid steady-state errors, the feedforward gain $L_c$ was chosen as the inverse of the steady-state gain of the closed-loop system. This matter will be treated in greater detail in \cref{sec:q12}.
+
+Using the desired pole locations mapped to the $z$-plane, the feedback gain $L$ can be determined using the \textsc{Matlab}-command \texttt{place}. \Cref{fig:q5_step} shows the response of a collection of different pole locations; faster and slower, and with more or less damping. The response resulting from the discussed design process is also shown. The poles are listed in \cref{tab:polelocations} as well. \Cref{fig:q5_pzmap} shows all the corresponding pole and zero locations in the $z$-plane; clearly the zeros remain in place regardless of the pole-placement controller design.
+\begin{table}
     \centering
-    \includegraphics{media/q5/dt_step.eps}
-    \caption{$h = \SI{0.0192}{\second}$}
-    \label{fig:q5_step}
-\end{figure}
-Using the desired pole locations mapped to the $z$-plane, the feedback gain $L$ can be determined using the \textsc{Matlab}-command \texttt{place}. \Cref{fig:q5_step} also shows the response from some other pole locations; faster and slower, and with more or less damping. The response resulting from the discussed design process is also shown. \Cref{fig:cont_plant_pzmap} shows all the corresponding pole and zero locations in the $z$-plane; clearly the zeros remain in place regardless of the pole-placement controller design.
+    \caption{Overview of the pole locations; the corresponding step responses are show in \cref{fig:q5_step} and the discrete pole locations in \cref{fig:q5_pzmap}. The first set of poles represents a badly damped response with a large imaginary part. The second one shows one with better damping. The third pole set is the one designed in this section to meet the requirements for the step reference-tracking. Finally, the fourth set of poles approximates the `deadbeat' controller, with all poles at the origin of the $z$-plane. In theory, there is no equivalent in continuous-time because the poles would have to be at $-\infty$. The \texttt{place} command cannot handle poles with multiplicity greater than one, which is why the remaining poles are placed very close to the origin; this corresponds to a large but finite distance from the origin in the $s$-plane.}
+    \label{tab:polelocations}
+    \begin{tabular}{cccc}
+       \toprule 
+       $s$-plane & $z$-plane & $\omega$ (\si{\radian\per\second}) & $\zeta$ \\
+       \toprule
+       -10 & 0.8251 & 10 & 1 \\ 
+       $-1\pm4j$ & $0.9781 \pm 0.0754j$ & $4.12$ & $0.24$ \\ 
+       \midrule{0.2pt}
+       $-10$ & $0.8251$ & $10$ & $1$ \\ 
+       $-4\pm2j$ & $ 0.9253 \pm 0.0356j$ & $ 4.47$ & $ 0.89$ \\ 
+       \midrule{0.2pt}
+       $-26$ & $0.6065$ & $26$ & $1$ \\ 
+       $-17.5130 + 9.6589j$ & $0.7018 + 0.1319j$ & $ 20$ & $ 0.88$ \\ 
+       \midrule{0.2pt}
+        $-\infty$ & 0 & $\infty$ & 1 \\
+        -359.2 & 0.001 & 359.2 & 1 \\
+        -323.2 & 0.002 & 323.2 & 1 \\
+       \bottomrule
+    \end{tabular}
+\end{table}
 \begin{figure}[ht]
     \centering
     \includegraphics{media/q5/dt_pzmap.eps}
-    \caption{}
+    \caption{Pole-zero map of the pole-placement controllers shown in \cref{tab:polelocations,fig:q5_step} in the $z$-plane. The system zeros clearly remain untouched by the state-feedback controller.}
     \label{fig:q5_pzmap}
 \end{figure}
+\FloatBarrier
+\begin{figure}[ht]
+    \centering
+    \includegraphics{media/q5/dt_step.eps}
+    \caption{Step response of the pole-placement controllers for various choices of the closed-loop pole locations (as documented in \cref{tab:polelocations}). The first and second response illustrate the influence of the relative size of the imaginary part in the $s$-plane and the associate damping ratio. The third response is the one designed to meet the reference-tracking requirements. The fourth response approximates the `deadbeat' controller which has all its poles at the origin of the $z$-plane and reaches its steady-state in at most $n$ steps. The excessive overshoot of this response is a consequence of the inability of the state-feedback controller to influence the zeros of the plant. All the controllers are adjusted with a feedforward term to eliminate the steady-state error. ($h = \SI{0.0192}{\second}$)}
+    \label{fig:q5_step}
+\end{figure}
 
-\subsection{Output feedback using pole-placement\textnormal{\phantom{xxx}(Question 6)}}
+\subsection{Output feedback using pole-placement \textnormal{\phantom{xxx}(Question 6)}}
 \label{sec:ss_output}
+Now, it will no longer be assumed that all the states are known, but that the controller has access to the system output only. To apply state feedback, the controller must include an observer that provides an estimate of the current state.
+
 \subsubsection{Servo problem}
-Now, it will no longer be assumed that all the states are known, but that the controller can only see the output of the system. To apply state feedback, the controller must include an observer that provides an estimate of the current state. \Cref{fig:q6_block_servo} shows how the plant and the controller are connected. To do so, the \textsc{Matlab} command \texttt{lft} (linear fractional transformation) was used.
+First, a controller configuration will be presented for a servo case; with the purpose to track a reference step according to the previously set requirements. \Cref{fig:q6_block_servo} shows how the plant and the controller are connected. To do so, the \textsc{Matlab} command \texttt{lft} (linear fractional transformation) was used.
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=1.3]{media/q6/block_outputfeedback-02.eps}
     \caption{}
     \label{fig:q6_block_servo}
 \end{figure}
-From \cref{fig:q6_block_servo}, it is straightforward to find the corresponding state-space models.
+The corresponding control law is
+    $$u(k) = -L\hat{x}(k) + L_c r(k) $$
+From \cref{fig:q6_block_servo}, it is then straightforward to find the corresponding state-space models.
 \begin{equation}
     \text{\textsc{Plant}}\qquad
     \begin{aligned}
@@ -75,22 +104,28 @@ From \cref{fig:q6_block_servo}, it is straightforward to find the corresponding 
         u(k) =& -L\hat{x}(k) + \mqty(0&0&L_c)\mqty(u(k)\\y(k)\\r(k))
     \end{aligned}
 \end{equation}
-The same pole locations were chosen as those designed in \cref{sec:ss_full} to obtain the state feedback gain $L$. It is common practice to place the observer poles faster than the controller, such that the state estimation error will decay faster to zero. The rationale behind this is perspicuous: it does not make sense to apply a state feedback law based on a state estimation that is way off. Therefore, the observer poles were chosen to be a factor 1.3 times the state feedback poles (in the $s$-plane). Translated to the $z$-plane, this resulted in:
-$$0.6473 \pm 0.1370j \quad  0.5220$$
-Again, the feedforward gain $L_c$ was used to eliminate the steady-state error; its computation will be discussed in \cref{sec:q12}. The resulting closed-loop system was simulated with a step reference input and the state estimates initialised at $\hat{x}_0 = \mqty(-20 & 30 & 50)$. The result is shown in \cref{fig:q6_output_servo}; both the output and the state estimation error are displayed. The state error decays to zero faster than the output attains it final value due to the faster observer poles. Also, there is only a marginal difference between the output feedback controller and the full information case from \cref{sec:ss_full}.
+The same pole locations were chosen as those designed in \cref{sec:ss_full} to obtain the state feedback gain $L$. It is common practice to place the observer poles faster than the controller, such that the state estimation error will decay faster to zero. The rationale behind this is perspicuous: it does not make sense to apply a state feedback law based on a state estimation that is way off. According to \textcite{ogata}, the observer poles should be a factor 2 to 5 times faster than the controller poles (in the $s$-plane). For this design, a factor of 3 was chosen. These faster dynamics must also be taken in to account in the sampling period, which was adjusted by the same factor such that $h = \SI{0.0064}{\second}$. The resulting observer poles are (the state feedback poles are documented in \cref{tab:polelocations}):
+\begin{center}
+    \begin{tabular}{cc}
+        $s$-plane & $z$-plane\\
+        $-52.539 \pm28.977j \quad -78\qquad$  & $ 0.7018 \pm 0.1319j\quad0.6065$ \\
+    \end{tabular}
+\end{center}
+Again, the feedforward gain $L_c$ was used to eliminate the steady-state error; its computation will be discussed in \cref{sec:q12}. For this controller, a value of $L_c = 462.46$ was used. The resulting closed-loop system was simulated with a step reference input and the state estimates initialized at $\hat{x}_0 = \mqty(0.2 0.2 0.2)$ to start with an inaccurate state estimation. The result is shown in \cref{fig:q6_output_servo}; both the output and the state estimation error are displayed. The state error decays to zero faster than the output attains its final value due to the faster observer poles. As soon as the state estimates start to converge to their true values, the controller quickly manages to track the reference.
 \begin{figure}[ht!]
     \centering
     \includegraphics[]{media/q6/output_servo.eps}
-    \caption{}
+    \caption{Results of the output feedback controller for the servo case. The plot on top shows the output as a response to a step reference input, compared with the previous result with full-information control. The lower plot shows the state estimation error; apparently the first state shows the largest estimation error, after which it decays quickly towards 0. Around \SI{0.06}{\second}, the state estimates become reasonable and the controller manages to drive the output in the direction of the reference. ($h = \SI{0.0064}{\second}$). }
     \label{fig:q6_output_servo}
 \end{figure}
+\FloatBarrier
 
 \subsubsection{Disturbance rejection}
-Now, the output feedback controller will be used to reject a step load disturbance. Because the disturbance is not directly measurable and also not controllable by $u$, the controller must be equipped with an observer of the disturbance; only then will it have the ability to reject it succesfully. Since a step disturbance is assumed, the disturbance model simply reads:
+In this section the output feedback controller will be used in a regulation setting to reject a step load disturbance. Because the disturbance is not directly measurable and also not controllable by $u$, the controller must be equipped with an observer of the disturbance; only then will it have the ability to reject it successfully. Since a step disturbance is assumed, the disturbance model simply reads:
                                 $$v(k + 1) = v(k)$$
 in combination with an initial condition $v_0$ (for the unit step disturbance, $v_0 = 1$). To turn this model into an observer, the mismatch between the plant output and the estimated output will be fed as an input to the observer, multiplied by a gain $K_w$. Finally, the output of the controller $u(k)$ is based on the feedback law:
                                 $$u(k) = -L\hat{x}(k) - \hat{v}(k)$$
-which means that the state feedback law is applied on the state estimate, after which the disturbance estimate is subtracted. To build this system, the \textsc{Matlab} command \texttt{lft} was used in a similar fashion as before. \Cref{fig:q6_block_distrej} shows the layout of the (generalised) plant and controller.
+which means that the state feedback law is applied on the state estimate, after which the disturbance estimate is subtracted. To build this system, the \textsc{Matlab} command \texttt{lft} was used in a similar fashion as before. \Cref{fig:q6_block_distrej} shows the layout of the (generalized) plant and controller.
 \begin{figure}[ht!]
     \centering
     \includegraphics[scale=1.3]{media/q6/block_distrej-03.eps}
@@ -113,29 +148,37 @@ From \cref{fig:q6_block_distrej}, the state-space models of the plant and contro
         u(k) =& \mqty(-L&-1)\mqty(\hat{x}(k)\\\hat{v}(k))
     \end{aligned}
 \end{equation}
-The choice of $K_w$ entails the placement of an additional observer pole; the value of $K_w$ can be computed together with the state observer gain $K$ using the \textsc{Matlab} command \texttt{place} for the augmented controller system. This pole was placed at $s = -14$ or $z = 0.76$. The other observer and controller poles were kept at the same locations since they showed adequate performance. The sampling time is also the same as for the servo controller.
-\Cref{fig:q6_output_distrej} displays two plots; the top one is the reaction of the output to the step disturbance, the bottom plot is the estimate of the disturbance (which should of course converge to 1). The state estimates were initialised at $\hat{x}_0 = \mqty(1 & 3 & 5)$, the initial disturbance estimate was $\hat{v}_0 = -1$.
+The choice of $K_w$ entails the placement of an additional observer pole; the value of $K_w$ can be computed together with the state observer gain $K$ using the \textsc{Matlab} command \texttt{place} for the augmented controller system (that is, the combined model of the plant and the disturbance). This pole was placed at $s = -21$ or $z = 0.8741$, which is slower than the state observer poles; it turned out to be desirable to let them settle first before the disturbance estimate. The other observer and controller poles were kept at the same locations since they showed adequate performance. The sampling time is also the same as for the servo controller given that the fastest dynamics are identical.
+\Cref{fig:q6_output_distrej} displays two plots; the top one is the reaction of the output to the step disturbance, the bottom plot is the estimate of the disturbance (which should of course converge to 1). The state estimates were initialized at $\hat{x}_0 = \mqty(0.2 & 0.2 & 0.2)$, the initial disturbance estimate was $\hat{v}_0 = 0$.
 \begin{figure}[ht!]
     \centering
     \includegraphics[scale=1]{media/q6/output_distrej.eps}
-    \caption{}
+    \caption{Disturbance rejection by the output feedback controller with disturbance observer. The largest deviation of the output are due to the initial error in the state estimation. After the state estimate error becomes reasonable, the disturbance estimate starts to converge to 1. Due to the large initial response, this final value is not clearly visible on the figure.}
     \label{fig:q6_output_distrej}
 \end{figure}
-Clearly, the controller does a good job to reject the disturbance. The estimate suffers from a little overshoot but then converges quickly to 1. From the evolution of output it can be seen that initially not much happens, this is because the negative disturbance estimate and the state feedback cancel each other out. When the disturbance estimate starts to converge, the output of the system starts changing as well before it eventually settles after ca. \SI{0.5}{\second}.
-\subsection{Full-information feedback using LQR\textnormal{\phantom{xxx}(Question 7)}}
+\FloatBarrier
+
+\subsection{Full-information feedback using LQR \textnormal{\phantom{xxx}(Question 7)}}
 \label{sec:ss_lqr}
-Manual placement of the poles can sometimes be nonintuitive or overly complicated, especially for higher order systems. A potential solution for this issue exists in the form of the Linear Quadratic Regulator solution, which finds the optimal state feedback gain that minimises the cost function:\footnote{Although one could potentially also include a cross term involving both $u(k)$, $x(k)$, it is not frequently used in practice and therefore ommitted.}
+Manual placement of the poles can sometimes be non-intuitive or overly complicated, especially for higher order systems. A solution for this inconvenience exists in the form of the Linear Quadratic Regulator, which finds the optimal state feedback gain that minimizes the cost function:\footnote{Although one could potentially also include a cross term involving both $u(k)$, $x(k)$, it is not frequently used in practice and therefore omitted.}
 \begin{equation}
     J = \sum^\infty_{k=1} x(k)^\top Q x(k) + u(k)^\top R u(k)
     \label{eq:lqrcost}
 \end{equation}
-where $R\succ 0$ and $Q \succeq 0$ are weighting matrices that can be chosen as part of the controller design. From \cref{eq:lqrcost} it is quite clear that $Q$ puts a penalty on nonzero states while $R$ will penalise the controller effort. The main interest is to drive the output $y$ to zero as fast as possible, which is why it makes sense to base $Q$ on $C$:
+where $R\succ 0$ and $Q \succeq 0$ are weighting matrices that can be chosen as part of the controller design. From \cref{eq:lqrcost} it is quite clear that $Q$ puts a penalty on non-zero states while $R$ will penalize the controller effort. The main interest is to drive the output $y$ to zero as fast as possible, which is why it makes sense to base $Q$ on $C$:
                 $$ Q_0 = CC^\top $$
 Scalar multiples of $Q_0$ can then be chosen to put a greater (or perhaps smaller) penalty on the tracking error. Given that the resulting full state feedback controller must be able to track a step reference, a similar scheme is used as shown in \cref{fig:q6_block_servo} with a feedforward gain $L_c$ that acts on the reference. How $L_c$ is determined will be discussed in \cref{sec:q12}. 
+
+\Cref{fig:q7_lqr_comp} shows the resulting step response for several choices of $Q$ and $R$. Quite unsurprisingly, the fastest response is for the controller with the lowest penalty on the control effort and the highest penalty on the offset of the output. The sampling period used for the simulations is again $h = \SI{0.0192}{\second}$.
 \begin{figure}
     \centering
     \includegraphics[scale=1]{media/q7/lqr_comp.eps}
-    \caption{}
+    \caption{Step response for various combinations of $Q$ and $R$. ($h = \SI0.0128}{\second}$)}
     \label{fig:q7_lqr_comp}
 \end{figure}
-\Cref{fig:q7_lqr_comp} shows the resulting step response for several choices of $Q$ and $R$. As one might expect, the fastest response is for the controller with the lowest penalty on the control effort and the highest penalty on the offset of the output. For now, no restrictions have been imposed on the controller effort; therefore the feedback law that corresponds with $Q = \num{5e4}\times Q_0$ and $R = 1$ has been chosen as the best performing LQR controller. The sampling period used for the simulations is again $h = \SI{0.0192}{\second}$.
+\begin{figure}
+    \centering
+    \includegraphics{media/q7/lqr_final.eps}
+    \caption{}
+
+\end{figure}

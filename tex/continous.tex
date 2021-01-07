@@ -47,7 +47,7 @@ As specified by \textcite{nise}, the following relations hold for a \nth{2}-orde
     \zeta^4-4\zeta^2+2}}
     \label{eq:damping}
 \end{equation}
-Hence, to minimize the settling time one preferably has a damping ration $\zeta$ close to unity and maximise the $\omega_\text{BW}$, which in turn means that the cross-over frequency of the loop transfer function should be as large as possible. Furthermore, the overshoot of the system can be related to the damping ratio as follows:
+Hence, to minimize the settling time one preferably has a damping ration $\zeta$ close to unity and maximize the $\omega_\text{BW}$, which in turn means that the cross-over frequency of the loop transfer function should be as large as possible. Furthermore, the overshoot of the system can be related to the damping ratio as follows:
 \begin{equation}
 \%\text{OS} = 100\times \exp(-\frac{\zeta \pi}{\sqrt{1-\zeta^2}})
 \label{eq:overshoot}    
@@ -75,7 +75,7 @@ which is essentially the same as a lead-compensator with a pole far into the lef
 \phi_\text{max} = \sin[-1](\frac{N}{N + 2}) \approx \ang{45}
 \label{eq:maxphi}
 \end{equation}
-As mentioned before, the maximum phase contribution of the lead contribution occurs at the geometric mean of the pole and zero frequencie: \cite{ogata}
+As mentioned before, the maximum phase contribution of the lead contribution occurs at the geometric mean of the pole and zero frequencies: \cite{ogata}
 \begin{equation}
     \omega_{\phi_\text{max}} = \frac{N}{T_d\sqrt{N+1}}
     \label{eq:omegamaxphi}
@@ -128,9 +128,9 @@ $$
     \end{tabular}
 \end{table}
 
-\subsection{Disturbance rejection\textnormal{\phantom{xxx}(Question 2)}}
+\subsection{Disturbance rejection \textnormal{\phantom{xxx}(Question 2)}}
 \label{sec:continuousdisturbance}
-In this section, another contoller will be designed specifically for the rejection of a load disturbance $q$ that acts on the control input in the form of a step input. The following requirements are to be fullfilled:
+In this section, another controller will be designed specifically for the rejection of a load disturbance $q$ that acts on the control input in the form of a step input. The following requirements are to be fulfilled:
 \begin{itemize}
     \item Minimal amplitude of the output as a result of the disturbance.
     \item Minimal duration of the disturbance.
@@ -145,16 +145,16 @@ The closed-loop transfer function from the load disturbance $q$ to the output $y
 where $S(s)$ is the so-called sensitivity transfer function of the closed-loop. Clearly, the sensitivity function will have the poles of the loop transfer function as zeros. \Cref{sec:plant} already mentions that the system is Type-I. Therefore, the sensitivity function must have a \textit{zero} at $s = 0$. As such, in the transfer function $G_d(s)$ the zero from $S$ and the pole from $G_d$ cancel. In order to meet the requirements and have no steady-state offset in the response due to the load disturbance, the final value theorem states that $\lim_{s\to 0} sG_d(s)\frac{1}{s}$. As such, $G_d(s)$ must have a zero at $s = 0$ (which of course should not be cancelled). This can be achieved by placing an extra pole in the controller at $s = 0$; in other words: integral action will be instrumental to eliminate steady-state offset as a result of the load disturbance. Hence, the controller will be of the type PI(DD).
 
 \paragraph{Frequency-domain requirements}
-Ideally, the transfer function from the disturbance $q$ to the output $y$ is no-pass (i.e. none of the frequency components in the disturbance persist to the output). Of course, this is not achievable. However, from inspection of \cref{eq:disttf} it is clear that for frequencies where the loop gain $\abs{G(s)K(s)}$ is high will $G_d(s)$ will show proper damping. Hence, high proportional gain and lag compensation (i.e. high gain contribution at lower frequencies) will decrease the settling time of the output after the introduction of the step load disturbance. The plant itself is low-pass with a very low crossover frequency; hence one can expected that high controller gain will be required to reject the disturbance quickly. Besides, the aforementioned requirements will likely contradict with those of the previous controller: where for the tracking case a generous phase margin reduced the settling time, higher damping in the case of disturbance rejection will jeopardise the controller's ability to amplify frequency components to a sufficient extent which in turn would mitigate the effect of the load disturbance on the output.
+Ideally, the transfer function from the disturbance $q$ to the output $y$ is no-pass (i.e. none of the frequency components in the disturbance persist to the output). Of course, this is not achievable. However, from inspection of \cref{eq:disttf} it is clear that for frequencies where the loop gain $\abs{G(s)K(s)}$ is high will $G_d(s)$ will show proper damping. Hence, high proportional gain and lag compensation (i.e. high gain contribution at lower frequencies) will decrease the settling time of the output after the introduction of the step load disturbance. The plant itself is low-pass with a very low crossover frequency; hence one can expect that high controller gain will be required to reject the disturbance quickly. Besides, the aforementioned requirements will likely contradict with those of the previous controller: where for the tracking case a generous phase margin reduced the settling time, higher damping in the case of disturbance rejection will jeopardize the controller's ability to amplify frequency components to a sufficient extent which in turn would mitigate the effect of the load disturbance on the output.
 
 \paragraph{Loop shaping}
 It is already known that a PI-controller structure will be inevitable to obey the imposed constraints. As such, the limits of this controller type will be explored first after which the potential extension to a PID(D) type controller can be investigated. The PI-controller has the transfer function
 \begin{equation}
     K_p\qty(1 + \frac{1}{T_is})
 \end{equation}
-which has a pole at $s = 0$ and a zero at $s = -1/T_i$. The zero determines the second corner frequency of the controller, and therefore up to which frequency the amplification occurs. Simultaneously, the PI controller will introduce a destabilising phase lag for lower frequencies, also determined by the position of this zero.
+which has a pole at $s = 0$ and a zero at $s = -1/T_i$. The zero determines the second corner frequency of the controller, and therefore up to which frequency the amplification occurs. Simultaneously, the PI controller will introduce a destabilizing phase lag for lower frequencies, also determined by the position of this zero.
 
-Because the proportional gain $K_p$ does not affect the phase curve of the system, the maximum attainable phase margin (i.e. where the phase curve is maximal) is purely determined by the choice of $T_i$. A higher phase margin gives better damping of oscillatory respones but also means that $T_i$ must be higher, which decreases the amplification of the lower frequencies with a deterioration of the settling time as a result (the slower frequencies will take longer to be rejected by the system). Oscillations in the response may on the other hand also slow down the time it takes for the output to return to zero, so a compromise has to be found. \Cref{fig:pm_comparison} shows a comparison of three values for the phase margin: for each of these, $T_i$ was tuned to make sure that the maximum attainable phase margin would be equal to a set value (\ang{35}, \ang{41} and \ang{45}), after which $K_p$ was tuned to set the crossover frequency at the correct value. Clearly, the settling time is lowest for $\phi_m = \ang{40}$, so this value was used as an approximate tuning value for $T_i$. 
+Because the proportional gain $K_p$ does not affect the phase curve of the system, the maximum attainable phase margin (i.e. where the phase curve is maximal) is purely determined by the choice of $T_i$. A higher phase margin gives better damping of oscillatory responses but also means that $T_i$ must be higher, which decreases the amplification of the lower frequencies with a deterioration of the settling time as a result (the slower frequencies will take longer to be rejected by the system). Oscillations in the response may on the other hand also slow down the time it takes for the output to return to zero, so a compromise has to be found. \Cref{fig:pm_comparison} shows a comparison of three values for the phase margin: for each of these, $T_i$ was tuned to make sure that the maximum attainable phase margin would be equal to a set value (\ang{35}, \ang{41} and \ang{45}), after which $K_p$ was tuned to set the crossover frequency at the correct value. Clearly, the settling time is lowest for $\phi_m = \ang{40}$, so this value was used as an approximate tuning value for $T_i$. 
 \begin{figure}
     \centering
     \includegraphics[]{media/q2/pi_pm_comparison.eps}
@@ -162,7 +162,7 @@ Because the proportional gain $K_p$ does not affect the phase curve of the syste
     \label{fig:pm_comparison}
 \end{figure}
 
-It has to be noted that the two first requirements are conflicting, since both the peak amplitude and the settling time must be minimised, without a quantifiable priority of one over the other. Indeed, in \cref{fig:pm_comparison} one can see that for $\phi_m = \ang{35}$, the peak value is slightly lower. However, because the relative difference in the peak value is relatively low compared to the difference in settling time, $\phi_m = \ang{40}$ is said to show the `better' performance.
+It has to be noted that the two first requirements are conflicting, since both the peak amplitude and the settling time must be minimized, without a quantifiable priority of one over the other. Indeed, in \cref{fig:pm_comparison} one can see that for $\phi_m = \ang{35}$, the peak value is slightly lower. However, because the relative difference in the peak value is relatively low compared to the difference in settling time, $\phi_m = \ang{40}$ is said to show the `better' performance.
 
 At this point, no better performance (in terms of settling time) can be achieved by using the PI controller structure: to lower the settling time $T_i$ must be decreased to amplify the lower frequencies to a greater extent. However, this creates two issues: firstly, the phase curve will at some point cross the \ang{-180} line, which will render the system immediately unstable: the gain will cross-over at a higher frequency. Decreasing the gain is not an option since it will yield a dramatic increase of the peak amplitude. Secondly, as illustrated by \cref{fig:pm_comparison} the smaller phase margin results in badly damped oscillatory artefacts in the response even before the point of instability is reached. Therefore, one must resort to D-action to add phase advance at these higher frequencies to keep sufficient phase margin and prevent the phase from crossing over. As in \cref{sec:continuoustracking}, a realizable D-term as described by \cref{eq:leadcomp} will be used with $N = 5$. 
 \begin{figure}[ht]

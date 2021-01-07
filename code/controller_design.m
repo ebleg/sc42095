@@ -118,13 +118,13 @@ lgdtxt = {'\#2 P', '\#3 D-action', '\#4 D-action + target PM', ...
 % Export graphics
 figure(nfig_q1_steps);
 legend(lgdtxt, 'Location', 'southeast');
-% exportgraphics(gcf, '../tex/media/q1/pd_controllers_step.eps');
+exportgraphics(gcf, '../tex/media/q1/pd_controllers_step.eps');
 
 figure(nfig_q1_bode);
 lgd = legend(lgdtxt, 'Orientation', 'Horizontal', 'NumColumns', 3);
 lgd.Layout.Tile = 'north';
 set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 1.3])
-% exportgraphics(gcf, '../tex/media/q1/pd_controllers_bode.eps')
+exportgraphics(gcf, '../tex/media/q1/pd_controllers_bode.eps')
 
 fprintf('Final controller:\n');
 zpk(K1.it6.tf)
@@ -205,7 +205,7 @@ ylabel('Amplitude');
 title('\textbf{Disturbance step}')
 subtitle('Comparison between different values for the PM');
 legend(lgdtxt);
-% exportgraphics(gcf, '../tex/media/q2/pi_pm_comparison.eps');
+exportgraphics(gcf, '../tex/media/q2/pi_pm_comparison.eps');
 
 figure; hold on; % Bode
 nfig_q2_steps2 = gcf().Number;
@@ -292,7 +292,7 @@ stairs(t2, y2);
 xlim([0 max(t2)]);
 legend({'Continuous system', 'Discrete system'}, 'Location', 'best');
 title('\textbf{Impulse response}'); xlabel('Time (s)'); ylabel('Amplitude');
-% exportgraphics(gcf, '../tex/media/q3/dt_plant_impulse.eps');
+exportgraphics(gcf, '../tex/media/q3/dt_plant_impulse.eps');
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
@@ -349,18 +349,19 @@ clearvars -except K1 K2 Gc s PIDDstruct N Gcss
 
 %% Question 5: Discrete controller with pole-placement
 OS_max = 1;
-zeta_target = -log(OS_max/100)/sqrt(pi^2 + log(OS_max/100)^2);
+zeta_target = -log(OS_max/100)/sqrt(pi^2 + log(OS_max/100)^2)*1.06;
 w = 20;
-target_pole = complex(-zeta_target*w, sqrt(1 - zeta_target)*w);
+target_pole = complex(-zeta_target*w, sqrt(1 - zeta_target^2)*w);
 
 poles_cont = [-10, -1+4j, -1-4j; % Complex pole pair
               -10, -4+2j, -4-2j; % Complex pole pair
               target_pole, conj(target_pole), -1.3*w]; % Pure damping
 h5 = 0.5/1.3/w;
+
 poles_disc = exp(poles_cont*h5);
 poles_disc = [poles_disc; [0 0.001 0.002]]; % Deadbeat
 
-Gdss = canon(c2d(Gcss, h5, 'zoh'), 'canonical');
+Gdss = c2d(Gcss, h5, 'zoh');
 %  
 figure('Name', 'Q5: Controller design with pole-placement', 'NumberTitle', 'on')
 nfig_q5_step = get(gcf, 'Number'); hold on;
@@ -398,14 +399,15 @@ clearvars -except K1 K2 Gc s PIDDstruct N Gcss target_pole w h5
 
 %% Question 6: Output feedback control
 % -------------------------- TRACKING ------------------------------
-h6 = h5;
-Gdss = canon(c2d(Gcss, h6, 'zoh'), 'canonical');
+h6 = h5/3;
+Gdss = c2d(Gcss, h6, 'zoh');
 
 % Build the controller system system
 % poles_fb = [-8 -12.01 -12];
 poles_fb = [target_pole, conj(target_pole), -1.3*w];
 L = place(Gdss.A, Gdss.B, exp(h6*poles_fb));
-K = place(Gdss.A', Gdss.C', exp(h6*poles_fb.*1.3))';
+% K = place(Gdss.A', Gdss.C', exp(h6*poles_fb.*2))';
+K = place(Gdss.A', Gdss.C', exp(h6*poles_fb*3))';
 
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 
@@ -428,8 +430,8 @@ K_obs = ss(Gdss.A - K*Gdss.C, ... % A
 Hcl_out = lft(Gdss_ext, K_obs);
 Hcl_full = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h6);
 
-tin = 0:h6:0.5;
-x0 = [0 0 0 -2 3 5]*10;
+tin = 0:h6:0.35;
+x0 = [0 0 0 1 1 1]*0.2;
 [y, ~, x] = lsim(Hcl_out, ones(size(tin)), tin, x0);
 
 % Plot the results
@@ -453,14 +455,14 @@ exportgraphics(gcf, '../tex/media/q6/output_servo.eps');
 
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss Gdss h6 poles_fb
 
-% ------------------------- DISTURBANCE ----------------------------
+%% ------------------------- DISTURBANCE ----------------------------
 
 % poles_fb = [-8 -12.01 -12];
 L = place(Gdss.A, Gdss.B, exp(h6*poles_fb));
 % K = place(Gdss.A', Gdss.C', exp(h6*poles_fb*2))';
 
 K = place([Gdss.A Gdss.B; [0 0 0 1]]', [Gdss.C 0]', ...
-                                     exp(h6*[poles_fb, -7]*2))';
+                                     exp(h6*[poles_fb, -7]*3))';
 % Extended system
 % IN: [d u] OUT: [y u y];
 Gdss_ext = ss(Gdss.A, ...
@@ -479,12 +481,12 @@ K_obs = ss([[Gdss.A; [0 0 0]] - K*Gdss.C, [Gdss.B; 1]], ... % A
 Hcl = lft(Gdss_ext, K_obs);
 
 figure('Name', 'Q6: Ouput-feedback reference tracking', 'NumberTitle', 'on')
-tin = 0:h6:0.8;
+tin = 0:h6:0.5;
 u = ones(size(tin));
 
 tile = tiledlayout(2, 1);
 nexttile
-[y, ~, x] = lsim(Hcl, u, tin, [0 0 0 1 3 5 -1]);
+[y, ~, x] = lsim(Hcl, u, tin, [0 0 0 0.2 0.2 0.2 0]);
 stairs(tin, y);
 ylabel('Amplitude')
 
@@ -501,7 +503,7 @@ exportgraphics(gcf, '../tex/media/q6/output_distrej.eps');
 clearvars -except K1 K2 Gc s PIDDstruct N Gcss h6
 
 %% Question 7: LQR controllers
-h7 = h6;
+h7 = h6*2;
 Gdss = canon(c2d(Gcss, h7, 'zoh'), 'canonical');
 
 Rrange = [1 10];
@@ -524,9 +526,21 @@ for i = 1:numel(Rrange)
     end
 end
 title('\textbf{LQR weighting matrices comparison}');
-legend(lgdtxt, 'Location', 'eastoutside');
+lgd = legend(lgdtxt, 'Location', 'southoutside', 'Orientation', 'Horizontal', ...
+            'NumColumns', 3);
 ylabel('Amplitude')
+set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 1.5]);
+
 exportgraphics(gcf, '../tex/media/q7/lqr_comp.eps');
 
+% Plot final response properly
+figure;
+L = dlqr(Gdss.A, Gdss.B, Q0*1e4, 0.1);
+Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
+Hcl = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, Gdss.C, Gdss.D, h6/1.5);
+specialstep(Hcl, 0:h6/1.5:0.2);
+title('\textbf{LQR design response}'); ylabel('Amplitude');
+set(gcf, 'Position', get(gcf, 'Position').*[1 1 1 0.8]);
+exportgraphics(gcf, '../tex/media/q7/lqr_final.eps');
 
 %% Functions

@@ -1,5 +1,5 @@
 [Iets over sampling time]
-\subsection{Controller effort computation\textnormal{\phantom{xxx}(Question 8)}}
+\subsection{Controller effort computation \textnormal{\phantom{xxx}(Question 8)}}
 In this section the control effort associated with the controllers designed in \cref{sec:continuoustracking,sec:continuousdisturbance,sec:ss_full,sec:ss_output,sec:ss_lqr} will be computed. The reason behind this analysis is that the actuators are known to saturate at $u = \pm20$. The controllers were predominantly designed with speed as a main priority, they will likely violate this constraint. This is why in \cref{sec:retunepid,sec:retunepolep,sec:retunelqr} the controller designs will be revisited to address this new restriction.
 
 The input effort is easily computed from the previously obtained systems. For the PID-controllers, the associated transfer function will be computed, while for the state-space controllers an extra output with the controller effort will be added to the system.\\
@@ -9,10 +9,10 @@ To compute the controller effort resulting from a load disturbance, another tran
 $$ T(s) = \frac{G(s)K(s)}{1 + G(s)K(s)}$$
 which is, by definition, the complementary sensitivity transfer function of the closed-loop system. 
 
-For the state-space methods, the output matrix of the controller will be ``doubled" (i.e. the same output twice); this way the \texttt{lft} command will leave the second output as an output for the closed-loop system while the first is connected to the generalised plant. For the full-information case this was not even required since the control input is based on the actual states instead of observed ones, so the feedback gain $-L$ is stacked under the output matrix $C$ to obtain the second output.
+For the state-space methods, the output matrix of the controller will be `doubled' (i.e. the same output twice); this way the \texttt{lft} command will leave the second output as an output for the closed-loop system while the first is connected to the generalized plant. The full-information controller an even simpler approach could be taken since the control input is based on the actual states instead of observed ones, so the feedback gain $-L$ is stacked under the output matrix $C$ to obtain the second output.
 
 \Crefrange{fig:q8_pdd}{fig:q8_lqr} show the step response and the associated control effort (measured on the right axis). All the tracking controllers violate the bounds; especially the PDD controller induces very high inputs.
-On the other hand, the control action for the disturbance rejection controllers is very small. This is to be expected, given that the magnitude of the complementary sensitivity transfer function (which determines the relation between the load disturbance and controller effort) is usually only larger than 1 in a small frequency band; at these frequencies the open-loop system outperforms its closed-loop counterpart. Hence, unless $\abs{T}$ has a very large peak at some frequency (this would arguably indicate a bad controller design and poor stability margins), most of the lower frequencies will be damped. For example, the PIDD disturbance rejection controller has a complementary sensitivity with peak value 1.37 at a frequency of \SI{281}{\radian\per\second}. Combined with a the Fourier transform of the step input it is clear that none of the input frequencies will be amplified to a magnitude that is much greater than 1.
+On the other hand, the control action for the disturbance rejection controllers is very small. This is to be expected, given that the magnitude of the complementary sensitivity transfer function (which determines the relation between the load disturbance and controller effort) is usually only larger than 1 in a small frequency band; at these frequencies the open-loop system outperforms its closed-loop counterpart. Hence, unless $\abs{T}$ has a very large peak at some frequency (this would arguably indicate a bad controller design and poor stability margins), most of the lower frequencies will be damped. For example, the PIDD disturbance rejection controller has a complementary sensitivity with peak value 1.37 at a frequency of \SI{281}{\radian\per\second}. Combined with the Fourier transform of the step input it is clear that none of the input frequencies will be amplified to a magnitude that is much greater than 1.
 \begin{figure}[ht!]
     \centering
     \includegraphics[scale=1]{media/q8/pdd.eps}
@@ -22,13 +22,13 @@ On the other hand, the control action for the disturbance rejection controllers 
 \begin{figure}[ht!]
     \centering
     \includegraphics[scale=1]{media/q8/pd.eps}
-    \caption{Step response and controller effort of the discretised PD-controller from \cref{sec:continuoustracking,sec:discretisecontrollers}. Although this was not the final design from the design process, it will be used for the redesign in \cref{sec:retunepid}. The bounds are still violated, but not as extreme as in \cref{fig:q8_pdd}.}
+    \caption{Step response and controller effort of the discretized PD-controller from \cref{sec:continuoustracking,sec:discretisecontrollers}. Although this was not the final design from the design process, it will be used for the redesign in \cref{sec:retunepid}. The bounds are still violated, but not as extreme as in \cref{fig:q8_pdd}.}
     \label{fig:q8_pd}
 \end{figure}
 \begin{figure}[ht!]
     \centering
     \includegraphics[scale=1]{media/q8/pidd.eps}
-    \caption{Step response and controller effort of the discretised PIDD-controller from \cref{sec:continuousdisturbance}. The final controller input settles at a value of -1, which indicates that the step disturbance is indeed rejected. The actuator saturation limits are not violated.}
+    \caption{Step response and controller effort of the discretized PIDD-controller from \cref{sec:continuousdisturbance}. The final controller input settles at a value of -1, which indicates that the step disturbance is indeed rejected. The actuator saturation limits are not violated.}
     \label{fig:q8_pidd}
 \end{figure}
 \begin{figure}[ht!]
@@ -73,13 +73,13 @@ Recall from \cref{sec:continuoustracking} that the maximal allowed gain for prop
 \end{figure}
 \FloatBarrier
 
-\subsection{Redesign of the state feedback controllers\textnormal{\phantom{xxx}(Question 10)}}
+\subsection{Redesign of the state feedback controllers \textnormal{\phantom{xxx}(Question 10)}}
 \label{sec:retunepolep}
 Recall from \cref{sec:ss_full} that the synthesis of the pole-placement controller was based on the `design' of one dominant complex pole pair and a third faster pole such that the system response is very similar to the desired response of the complex pole pair. The placement of the complex pole pair is determined in the $s$-plane since the notions of natural frequency and damping ratio are slightly less convoluted than in the $z$-plane. They can be easily mapped to the $z$-plane using \cref{eq:polemapping}.
 
 Without loss of generality, it can be assumed that the system is in controllable canonical form (controllability has been shown already). The magnitude of the entries of $L$ will then depend on how much the coefficients of the characteristic polynomial are changed with respect to the original one; the further they are placed in the left-half plane the larger the resulting control effort will be. Clearly, the choice of $\omega$ will have the largest influence on the control effort, and secondly also how far the third pole is placed from the dominant pair. The damping ration $\zeta$ has only a minor influence and can be used as a third step to tailor the response. Originally, the choices were $\omega = \SI{20}{\radian\per\second}$, $\zeta = 0.8261$ and the third pole was placed at with a natural frequency of $1.3\times\omega$.
 
-The tuning process then consisted of finding a good balance between the dominant pole pair and the position of the third pole: not too close to avoid substantial influence, but too far would increase the control effort such that $\omega$ had to be reduced even more to meet the constraints. Finally, $\zeta$ could be adjusted to minimise the settling time. The final design choices were $\omega = \SI{6.13}{\radian\per\second}$, $\zeta = 0.8$ and the third pole was placed at $1.4\times\omega$. The corresponding pole locations are; in the $s$-plane:
+The tuning process then consisted of finding a good balance between the dominant pole pair and the position of the third pole: not too close to avoid substantial influence, but too far would increase the control effort such that $\omega$ had to be reduced even more to meet the constraints. Finally, $\zeta$ could be adjusted to minimize the settling time. The final design choices were $\omega = \SI{6.13}{\radian\per\second}$, $\zeta = 0.8$ and the third pole was placed at $1.4\times\omega$. The corresponding pole locations are; in the $s$-plane:
 $$ s = -4.8897 \pm 3.7033j  \quad s = -8.5874$$
 For a sampling time of $h = \SI{0.0376}{\second}$, this corresponds to:
 $$z = 0.8239 \pm 0.1155j \quad z = 0.7239$$
@@ -90,7 +90,7 @@ $$z = 0.8239 \pm 0.1155j \quad z = 0.7239$$
     \caption{}
     \label{fig:q10_ppredesign}
 \end{figure}
-The output feedback controller design was based on the same pole locations; again the observer poles were the controller poles multiplied by 1.3 (in the $s$-plane). \Cref{fig:q10_outppredesign} shows the time simulation with the output feedback controller. The same inital conditions for the state estimates were used: $\hat{x}_0 = \mqty(-20 & 30 & 50)$. From the time response it is clear that the input is not as limiting as for the full-information controller; so technically the controller could be made a little bit more aggressive. However, this is highly dependent on the initial choice of $\hat{x}$, so it would defeat practical purposes to do so.
+The output feedback controller design was based on the same pole locations; again the observer poles were the controller poles multiplied by 1.3 (in the $s$-plane). \Cref{fig:q10_outppredesign} shows the time simulation with the output feedback controller. The same initial conditions for the state estimates were used: $\hat{x}_0 = \mqty(-20 & 30 & 50)$. From the time response it is clear that the input is not as limiting as for the full-information controller; so technically the controller could be made slightly more aggressive. However, this is highly dependent on the initial choice of $\hat{x}$, so it would defeat practical purposes to do so.
 \begin{figure}[ht]
     \centering
     \includegraphics{media/q10/ppredesign.eps}
@@ -101,7 +101,7 @@ The output feedback controller design was based on the same pole locations; agai
 
 \subsection{Redesign of the LQR controller\textnormal{\phantom{xxx}(Question 11)}}
 \label{sec:retunelqr}
-The entire purpose of the LQR controller synthesis is make the tuning process more intuitive. The previous controller design showed a dramatic violation of the actuator bounds. This problem can be addressed by either setting the penalty on the states lower, or the penalty on the input higher. Because there is only one input, the tuning is always relative (the absolute LQ cost will of course change, but the location of the minimum depends on the relative difference), and there is no need to penalise one input more than another. This is why $R$ was kept at 1 and the multiplier of $Q_0 = C^\top C$ was adjusted to satisfy the constraints. The resulting $Q$ matrix is:
+The entire purpose of the LQR controller synthesis is make the tuning process more intuitive. The previous controller design showed a dramatic violation of the actuator bounds. This problem can be addressed by either setting the penalty on the states lower, or the penalty on the input higher. Because there is only one input, the tuning is always relative (the absolute LQ cost will of course change, but the location of the minimum depends on the relative difference), and there is no need to penalize one input more than another. This is why $R$ was kept at 1 and the multiplier of $Q_0 = C^\top C$ was adjusted to satisfy the constraints. The resulting $Q$ matrix is:
 $$ Q = 428\times Q_0 = \mqty(0.00019165 & 0.0005272 &  0.00079125\\
                              0.00052727 & 0.0014506 &  0.0021768\\
                              0.00079125 & 0.0021768 &  0.0032667\\) $$
@@ -139,7 +139,7 @@ When using state feedback, the poles of the system can be placed at arbitrary lo
     \item \textbf{Feedforward gain} in case of a servo problem, the exogenous signal is measurable. Therefore, the inverse of the closed-loop steady-state gain can be used as a feedforward gain to scale the reference signal; the net steady-state gain of the closed-loop system will then be unity. It is straightforward to show that the closed-loop steady-state gain of the system is:
     $$ K_{ss} = C(I - (\Phi - \Gamma L))^{-1}\Gamma$$
     The feedforward gain will then be $L_c = \frac{1}{K_{ss}}$. Unfortunately this method has two shortcomings; first of which is that the `exogenous' signal must be measurable --- this may not be the case for disturbances. Secondly, the closed-loop steady-state gain will only be exactly unity in theory; the model is only an approximation of the real system and environmental variations may play a role as well. Any deviation from the theoretical steady-state gain will cause a steady-state error to arise. Of course, if the model is very accurate this error may be acceptable. \cite{keviczky}
-    \item If the aforementioned disadvantages of the feedforward gain are decisive, and especially in case of a disturbance rejection scheme, one must resort to \textbf{integral action}. Two different methods are presented in this report. First, to reject constant disturbances, one has to include a disturbance observer in the controller; this has been succesfully demonstrated in \cref{sec:ss_output}. Another method is to put an integrator in an outer feedback loop (this is analogous to integral action of the PID controller). To achieve this, the plant is extended with an integral state that contains the integrated output of the actual plant. Then, full-information feedback is applied to this extended plant. The corresponding system is:
+    \item If the aforementioned disadvantages of the feedforward gain are decisive, and especially in case of a disturbance rejection scheme, one must resort to \textbf{integral action}. Two different methods are presented in this report. First, to reject constant disturbances, one has to include a disturbance observer in the controller; this has been successfully demonstrated in \cref{sec:ss_output}. Another method is to put an integrator in an outer feedback loop (this is analogous to integral action of the PID controller). To achieve this, the plant is extended with an integral state that contains the integrated output of the actual plant. Then, full-information feedback is applied to this extended plant. The corresponding system is:
         $$ \mqty(x(k+1)\\x_i(k+1)) = \mqty(\Phi & 0 \\ -C & 1)\mqty(x(k)\\xi(k)) + \mqty(\Gamma\\0)u(k)\quad\text{ with }u(k) = r - \mqty(L & L_i)\mqty(x(k)\\x_i(k))$$ 
     Of course, the $Q$ matrix will have to be extended and retuned as well. A simulation of this system is shown in \cref{fig:q12_extlqr}; clearly the system is able to track a constant reference with zero steady-state error and reject a constant disturbance, in contrast to the standard LQR feedback scheme without feedforward.
 \end{itemize}
