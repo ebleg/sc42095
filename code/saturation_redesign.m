@@ -30,24 +30,24 @@ figure
 sim_with_input([feedback(K1_v2.Kp*Gd, 1); feedback(K1_v2.Kp, Gd)], ...
                 0:h:1.2);
 sim_with_input([feedback(K1_v2.tf*Gc, 1); feedback(K1_v2.tf, Gc)], ...
-                linspace(0, 1, 5e2));
+                linspace(0, 1.2, 5e2));
 legend({'DT system output', 'CT system output', 'CT controller effort',  ...
         'DT controller effort'}, 'location', 'best');
 title('\textbf{Redesigned P-controller (servo)}')
-% exportgraphics(gcf, '../tex/media/q9/pdredesign.eps');
+exportgraphics(gcf, '../tex/media/q9/pdredesign.eps');
 
 %% Pole placement redesign
 OS_max = 1;
 zeta_target = -log(OS_max/100)/sqrt(pi^2 + log(OS_max/100)^2)*0.965;
-Ts_target = 1.045;
+Ts_target = 1.0465;
 w = -log(0.01*sqrt(1-zeta_target^2))/Ts_target/zeta_target;
 % w = 5.5; 
-h = 0.3/1.3/w;
+h = 0.05;
 
 target_pole = complex(-zeta_target*w, sqrt(1 - zeta_target^2)*w);
 poles_fb = [target_pole, conj(target_pole), -1.4*w];
 
-Gdss = canon(c2d(Gcss, h, 'zoh'), 'canonical');
+Gdss = c2d(Gcss, h, 'zoh');
 
 L = place(Gdss.A, Gdss.B, exp(h*poles_fb));
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B); % FFW gain for correct ss value
@@ -62,44 +62,51 @@ fprintf('Settling time: %.3g\n', ...
 fprintf('Overshoot: %.3g\n', ...
     stepinfo(sys(1,1), 'SettlingTimeThreshold', 0.01).Overshoot);
 title('\textbf{Redesigned full-information controller}')
-% exportgraphics(gcf, '../tex/media/q10/ppredesign.eps');
+exportgraphics(gcf, '../tex/media/q10/ppredesign.eps');
 
 %% Output feedback
 % poles_fb2 = 1.132*poles_fb;
-poles_fb2 = poles_fb;
-L = place(Gdss.A, Gdss.B, exp(h*poles_fb2));
-K = place(Gdss.A', Gdss.C', exp(h*poles_fb2.*1.3))';
-
-Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
-
-% Generalised plant
-% IN: [r u] OUT: [y u u y r] --> extend with extra input 
-Gdss_ext = ss(Gdss.A, ... % A 
-              [zeros(3, 1) Gdss.B], ... % B 
-              [Gdss.C; [0 0 0]; Gdss.C; [0 0 0]], ... % C
-              [[0 0]; [0 1]; [0 0]; [1 0]], h, ... % D
-              'InputName', {'r', 'u'}, 'OutputName', {'y', 'u', 'y', 'r'});
-
-% Output feedback controller
-% IN: [u y r] OUT: [u] 
-K_obs = ss(Gdss.A - K*Gdss.C, ... % A
-           [Gdss.B K zeros(3, 1)], ... % B
-           repmat(-L, 2, 1), ... % C
-           repmat([0 0 Lc], 2, 1), ... % D
-           h, 'InputName', {'u', 'y', 'r'}, 'OutputName', {'u', 'u'});
-
-sys = lft(Gdss_ext, K_obs, 1, 3);
-
-figure; hold on;
-tin = 0:h:1.2;
-sim_with_input(sys, tin, [0 0 0 -2 3 5]*10);
-title('\textbf{Redesigned output feedback controller (servo)}')
+% poles_fb2 = poles_fb;
+% 
+% h = 0.5/1.3/w/2;
+% Gdss = c2d(Gcss, h, 'zoh');
+% 
+% L = place(Gdss.A, Gdss.B, exp(h*poles_fb2));
+% K = place(Gdss.A', Gdss.C', exp(h*poles_fb2.*2))';
+% 
+% Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
+% 
+% % Generalised plant
+% % IN: [r u] OUT: [y u u y r] --> extend with extra input 
+% Gdss_ext = ss(Gdss.A, ... % A 
+%               [zeros(3, 1) Gdss.B], ... % B 
+%               [Gdss.C; [0 0 0]; Gdss.C; [0 0 0]], ... % C
+%               [[0 0]; [0 1]; [0 0]; [1 0]], h, ... % D
+%               'InputName', {'r', 'u'}, 'OutputName', {'y', 'u', 'y', 'r'});
+% 
+% % Output feedback controller
+% % IN: [u y r] OUT: [u] 
+% K_obs = ss(Gdss.A - K*Gdss.C, ... % A
+%            [Gdss.B K zeros(3, 1)], ... % B
+%            repmat(-L, 2, 1), ... % C
+%            repmat([0 0 Lc], 2, 1), ... % D
+%            h, 'InputName', {'u', 'y', 'r'}, 'OutputName', {'u', 'u'});
+% 
+% sys = lft(Gdss_ext, K_obs, 1, 3);
+% 
+% figure; hold on;
+% tin = 0:h:4;
+% sim_with_input(sys, tin, [0 0 0 0.2 0.2 0.2]);
+% title('\textbf{Redesigned output feedback controller (servo)}')
 % exportgraphics(gcf, '../tex/media/q10/outppredesign.eps');
 
 %% LQR design
+h = 0.05;
+Gdss = c2d(Gcss, h, 'zoh');
+
 Q0 = Gdss.C'*Gdss.C;
-Q = 428*Q0;
-R = 1;
+Q = 1e4*Q0;
+R = 22;
 L = dlqr(Gdss.A, Gdss.B, Q, R);
 Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 

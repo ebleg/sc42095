@@ -156,7 +156,7 @@ Lc = 1/(Gdss.C/(eye(3) - Gdss.A + Gdss.B*L)*Gdss.B);
 sys = ss(Gdss.A - Gdss.B*L, Gdss.B*Lc, [Gdss.C; -L], [Gdss.D; Lc], h);
 
 figure; hold on;
-tin = 0:h:0.8;
+tin = 0:h:0.5;
 sim_with_input(sys, tin);
 title('\textbf{LQR controller}')
 exportgraphics(gcf, '../tex/media/q8/lqr.eps');
